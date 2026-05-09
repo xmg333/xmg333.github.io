@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HADOOP TELEMETRY STACK</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700;900&family=Noto+Sans+Mono+SC:wght@400;700&display=swap');
+
+  :root {
+    --red: #cc0000;
+    --redLight: #e02020;
+    --redDark: #990000;
+    --gold: #d4a017;
+    --black: #1a1a1a;
+    --industrialBlack: #2b2b2b;
+    --metalWhite: #f2ede6;
+    --concrete: #fdfbf8;
+    --pureWhite: #ffffff;
+    --electricCyan: #3a8a9a;
+    --velocityOrange: #b86030;
+    --signalGreen: #5a8a3a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+    background: var(--concrete);
+    color: var(--black);
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  .nav-bar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: var(--black);
+    border-bottom: 2px solid var(--red);
+    padding: 0 32px; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-bar::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: repeating-linear-gradient(90deg, var(--red) 0px, var(--red) 2px, transparent 2px, transparent 4px);
+  }
+  .nav-title {
+    color: var(--pureWhite);
+    font-weight: 900; font-size: 14px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .nav-clock {
+    color: var(--metalWhite);
+    font-family: "Noto Sans Mono SC", "SF Mono", "Menlo", "Consolas", monospace;
+    font-weight: 900; font-size: 18px;
+    letter-spacing: 0.05em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── HERO (PROUN) ── */
+  .hero {
+    margin-top: 56px;
+    position: relative;
+    min-height: 420px;
+    background: var(--black);
+    overflow: hidden;
+    display: flex; align-items: center;
+    padding: 64px 48px;
+  }
+  .hero-plane {
+    position: absolute;
+    bottom: 0; left: -80px;
+    width: 400px; height: 180px;
+    background: var(--industrialBlack);
+    clip-path: polygon(0% 100%, 20% 0%, 100% 0%, 80% 100%);
+  }
+  .hero-wedge {
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 350px; height: 260px;
+    background: var(--red);
+    clip-path: polygon(100% 100%, 0% 100%, 100% 0%);
+    opacity: 0.9;
+  }
+  .hero-circle {
+    position: absolute;
+    top: 60px; right: 120px;
+    width: 100px; height: 100px;
+    border: 3px solid var(--gold);
+    border-radius: 50%;
+    opacity: 0.6;
+  }
+  .hero-rect {
+    position: absolute;
+    top: 100px; left: 40%;
+    width: 60px; height: 120px;
+    border: 2px solid var(--electricCyan);
+    transform: perspective(400px) rotateY(-15deg);
+    opacity: 0.5;
+  }
+  .hero-content {
+    position: relative; z-index: 2;
+    max-width: 800px;
+  }
+  .hero-label {
+    color: var(--gold);
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    margin-bottom: 16px;
+    font-family: "Noto Sans Mono SC", "SF Mono", "Menlo", "Consolas", monospace;
+  }
+  .hero-title {
+    color: var(--pureWhite);
+    font-size: 64px; font-weight: 900;
+    line-height: 0.9; letter-spacing: -0.02em;
+    text-transform: uppercase;
+    text-shadow: 4px 4px 0px rgba(204,0,0,0.3);
+    margin-bottom: 8px;
+  }
+  .hero-sub {
+    color: var(--metalWhite);
+    font-size: 18px; font-weight: 300;
+    letter-spacing: 0.04em;
+  }
+  .hero-data {
+    display: flex; gap: 32px; margin-top: 32px;
+    font-family: "Noto Sans Mono SC", "SF Mono", "Menlo", "Consolas", monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  .hero-data-item {
+    text-align: left;
+  }
+  .hero-data-val {
+    color: var(--pureWhite);
+    font-size: 28px; font-weight: 900;
+    letter-spacing: 0.03em;
+  }
+  .hero-data-label {
+    color: var(--metalWhite);
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    opacity: 0.7;
+  }
+
+  /* ── INSTRUMENT BAR ── */
+  .instrument-bar {
+    height: 4px;
+    display: flex;
+  }
+  .instrument-bar span:nth-child(1) { flex: 3; background: var(--red); }
+  .instrument-bar span:nth-child(2) { flex: 1; background: var(--velocityOrange); }
+  .instrument-bar span:nth-child(3) { flex: 2; background: var(--gold); }
+  .instrument-bar span:nth-child(4) { flex: 1; background: var(--electricCyan); }
+  .instrument-bar span:nth-child(5) { flex: 1; background: var(--signalGreen); }
+  .instrument-bar span:nth-child(6) { flex: 2; background: var(--black); }
+
+  /* ── CONTENT ── */
+  .content {
+    max-width: 1200px; margin: 0 auto; padding: 64px 32px;
+  }
+  .section-label {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--red);
+    font-family: "Noto Sans Mono SC", "SF Mono", "Menlo", "Consolas", monospace;
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-size: 32px; font-weight: 900;
+    line-height: 0.9; letter-spacing: -0.02em;
+    text-transform: uppercase;
+    color: var(--black);
+    margin-bottom: 40px;
+  }
+
+  /* ── CARDS ── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  .card {
+    background: var(--pureWhite);
+    border: 3px solid var(--black);
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.2);
+    padding: 32px;
+    transition: transform 0.2s cubic-bezier(0.4,0,0.6,1), box-shadow 0.2s cubic-bezier(0.4,0,0.6,1);
+    position: relative;
+    text-decoration: none; display: block; color: inherit;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 8px 8px 0px rgba(0,0,0,0.25);
+  }
+  .card-accent {
+    position: absolute; top: 0; left: 0; width: 40px; height: 40px;
+    background: var(--red);
+  }
+  .card-num {
+    font-family: "Noto Sans Mono SC", "SF Mono", "Menlo", "Consolas", monospace;
+    font-size: 12px; font-weight: 900; color: var(--red);
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+  .card-title {
+    font-size: 20px; font-weight: 900;
+    text-transform: uppercase; letter-spacing: -0.01em;
+    color: var(--black);
+    margin-bottom: 8px;
+  }
+  .card-desc {
+    font-size: 14px; font-weight: 300;
+    color: var(--industrialBlack);
+    line-height: 1.6;
+  }
+  .card-tags {
+    display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap;
+  }
+  .card-tag {
+    font-family: "Noto Sans Mono SC", "SF Mono", "Menlo", "Consolas", monospace;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 4px 8px;
+    border: 2px solid var(--black);
+    background: var(--concrete);
+    color: var(--industrialBlack);
+  }
+  .card-tag.red { border-color: var(--red); color: var(--red); background: var(--pureWhite); }
+
+  /* ── FULL-WIDTH CARD ── */
+  .card-full {
+    grid-column: 1 / -1;
+  }
+  .card-full .card-title { font-size: 28px; }
+  .card-full .card-accent { width: 60px; height: 60px; }
+
+  /* ── SMALL LINK CARDS (远景) ── */
+  .link-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 48px;
+  }
+  .link-card {
+    background: var(--pureWhite);
+    border: 1px solid var(--industrialBlack);
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+    padding: 20px;
+    text-decoration: none; display: block; color: inherit;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .link-card:hover {
+    border-color: var(--red);
+    box-shadow: 3px 3px 0px rgba(204,0,0,0.25);
+  }
+  .link-card-title {
+    font-size: 13px; font-weight: 900;
+    text-transform: uppercase; letter-spacing: 0.03em;
+    color: var(--black);
+    margin-bottom: 4px;
+  }
+  .link-card-desc {
+    font-size: 12px; font-weight: 300;
+    color: var(--industrialBlack);
+    line-height: 1.5;
+  }
+
+  /* ── COMPONENT INDEX ── */
+  .comp-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 32px;
+  }
+  .comp-pill {
+    font-family: "Noto Sans Mono SC", "SF Mono", "Menlo", "Consolas", monospace;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 12px 16px;
+    border: 2px solid var(--black);
+    text-decoration: none; color: var(--black);
+    text-align: center;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .comp-pill:hover {
+    background: var(--red); color: var(--pureWhite); border-color: var(--redDark);
+  }
+
+  /* ── METRIC COUNTERS ── */
+  .metrics-row {
+    display: flex; gap: 16px;
+    margin: 48px 0;
+  }
+  .metric-box {
+    flex: 1;
+    background: var(--black);
+    border: 2px solid var(--industrialBlack);
+    padding: 24px;
+    text-align: center;
+  }
+  .metric-box.red-border { border-left: 4px solid var(--red); }
+  .metric-box.cyan-border { border-left: 4px solid var(--electricCyan); }
+  .metric-box.gold-border { border-left: 4px solid var(--gold); }
+
+  .metric-val {
+    font-family: "Noto Sans Mono SC", "SF Mono", "Menlo", "Consolas", monospace;
+    font-size: 36px; font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    color: var(--pureWhite);
+    letter-spacing: 0.03em;
+    line-height: 1;
+  }
+  .metric-label {
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--metalWhite); opacity: 0.6;
+    margin-top: 8px;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    background: var(--black);
+    border-top: 4px solid var(--red);
+    padding: 48px 32px;
+  }
+  .footer-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    flex-wrap: wrap; gap: 32px;
+  }
+  .footer-brand {
+    color: var(--pureWhite);
+    font-size: 14px; font-weight: 900;
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .footer-brand span { color: var(--red); }
+  .footer-meta {
+    font-family: "Noto Sans Mono SC", "SF Mono", "Menlo", "Consolas", monospace;
+    font-size: 10px; font-weight: 400;
+    color: var(--metalWhite); opacity: 0.5;
+    line-height: 1.8;
+  }
+  .footer-meta a {
+    color: var(--electricCyan); text-decoration: none;
+  }
+  .footer-meta a:hover { color: var(--red); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes signalPulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.3; }
+  }
+  .anim-up  { animation: fadeUp 0.6s cubic-bezier(0,0,0.2,1) both; }
+  .anim-d1  { animation-delay: 0.05s; }
+  .anim-d2  { animation-delay: 0.15s; }
+  .anim-d3  { animation-delay: 0.25s; }
+  .anim-d4  { animation-delay: 0.35s; }
+  .anim-d5  { animation-delay: 0.45s; }
+  .anim-d6  { animation-delay: 0.55s; }
+
+  .signal-dot {
+    display: inline-block; width: 8px; height: 8px;
+    background: var(--signalGreen);
+    margin-right: 8px;
+    animation: signalPulse 2s ease-in-out infinite;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .card-grid { grid-template-columns: 1fr; }
+    .link-grid { grid-template-columns: 1fr; }
+    .comp-grid { grid-template-columns: repeat(2, 1fr); }
+    .metrics-row { flex-direction: column; }
+    .hero-title { font-size: 36px; }
+    .hero { padding: 40px 24px; min-height: 300px; }
+    .hero-plane, .hero-wedge, .hero-circle, .hero-rect { display: none; }
+    .hero-data { gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav class="nav-bar">
+  <div class="nav-title"><span class="signal-dot"></span>HADOOP TELEMETRY STACK</div>
+  <div class="nav-clock" id="clock">00:00:00 UTC</div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-plane"></div>
+  <div class="hero-wedge"></div>
+  <div class="hero-circle"></div>
+  <div class="hero-rect"></div>
+  <div class="hero-content">
+    <div class="hero-label">// SYSTEM ONLINE — TELEMETRY ACTIVE</div>
+    <div class="hero-title anim-up">TRANSPARENT<br>OBSERVABILITY</div>
+    <div class="hero-sub anim-up anim-d1">Spark / MapReduce / Hive — Metrics Collection & Visualization Stack</div>
+    <div class="hero-data">
+      <div class="hero-data-item anim-up anim-d2">
+        <div class="hero-data-val">35+</div>
+        <div class="hero-data-label">Metric Instruments</div>
+      </div>
+      <div class="hero-data-item anim-up anim-d3">
+        <div class="hero-data-val">13</div>
+        <div class="hero-data-label">Grafana Dashboards</div>
+      </div>
+      <div class="hero-data-item anim-up anim-d4">
+        <div class="hero-data-val">15</div>
+        <div class="hero-data-label">Database Tables</div>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="instrument-bar"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+<!-- ── CONTENT ── -->
+<div class="content">
+
+  <!-- System Status -->
+  <div class="metrics-row">
+    <div class="metric-box red-border anim-up">
+      <div class="metric-val">3</div>
+      <div class="metric-label">Collection Engines</div>
+    </div>
+    <div class="metric-box cyan-border anim-up anim-d1">
+      <div class="metric-val">4.5K</div>
+      <div class="metric-label">Lines of Core Code</div>
+    </div>
+    <div class="metric-box gold-border anim-up anim-d2">
+      <div class="metric-val">APACHE 2.0</div>
+      <div class="metric-label">Open Source License</div>
+    </div>
+  </div>
+
+  <!-- Primary Entry -->
+  <div class="card-grid">
+    <a href="docs/" class="card card-full anim-up">
+      <div class="card-accent"></div>
+      <div style="padding-left: 60px;">
+        <div class="card-num">PRIMARY ENTRY</div>
+        <div class="card-title">Documentation →</div>
+        <div class="card-desc">Complete documentation for all components: Quick Start, Architecture, Configuration Reference, Deployment Guide, Troubleshooting, and Grafana Dashboard Reference.</div>
+        <div class="card-tags">
+          <span class="card-tag red">START HERE</span>
+          <span class="card-tag">27 Chapters</span>
+          <span class="card-tag">EN / 中文</span>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Engine Cards -->
+  <div class="section-label" style="margin-top: 48px;">// COLLECTION ENGINES</div>
+  <div class="section-title">Components</div>
+
+  <div class="card-grid">
+    <a href="docs/spark-plugin/" class="card anim-up">
+      <div class="card-accent"></div>
+      <div class="card-num">01 / ENGINE</div>
+      <div class="card-title">Spark Plugin</div>
+      <div class="card-desc">Transparent Spark metrics via SparkPlugin API and SparkListener. Captures task/stage IO, shuffle, JVM, and SQL query metrics. Supports Spark 2.4 / 3.x / 4.x.</div>
+      <div class="card-tags">
+        <span class="card-tag red">SPARK</span>
+        <span class="card-tag">OTLP gRPC</span>
+        <span class="card-tag">Omnipackage</span>
+      </div>
+    </a>
+    <a href="docs/mr-telemetry/" class="card anim-up anim-d1">
+      <div class="card-accent" style="background: var(--velocityOrange);"></div>
+      <div class="card-num">02 / ENGINE</div>
+      <div class="card-title">MapReduce Telemetry</div>
+      <div class="card-desc">MR Collector polls History Server REST API. MR Agent uses ByteBuddy instrumentation for task-level metrics. Covers HDFS IO, shuffle, and job counters.</div>
+      <div class="card-tags">
+        <span class="card-tag red">MAPREDUCE</span>
+        <span class="card-tag">ByteBuddy</span>
+        <span class="card-tag">REST API</span>
+      </div>
+    </a>
+    <a href="docs/hive-hook/" class="card anim-up anim-d2">
+      <div class="card-accent" style="background: var(--gold);"></div>
+      <div class="card-num">03 / ENGINE</div>
+      <div class="card-title">Hive Hook</div>
+      <div class="card-desc">ExecuteWithHookContext-based telemetry for HiveServer2. Captures query duration, IO bytes/rows, input/output tables. Compatible with Hive 2.x / 3.x.</div>
+      <div class="card-tags">
+        <span class="card-tag red">HIVE</span>
+        <span class="card-tag">Hook</span>
+        <span class="card-tag">SQL Capture</span>
+      </div>
+    </a>
+    <a href="docs/flink-consumer/" class="card anim-up anim-d3">
+      <div class="card-accent" style="background: var(--electricCyan);"></div>
+      <div class="card-num">04 / PIPELINE</div>
+      <div class="card-title">Flink Consumer</div>
+      <div class="card-desc">Kafka → Flink → MySQL/ClickHouse streaming pipeline. 15-table wide-row schema with histogram bucket support and stage governance pre-aggregation.</div>
+      <div class="card-tags">
+        <span class="card-tag red">FLINK 1.18</span>
+        <span class="card-tag">KAFKA</span>
+        <span class="card-tag">JDBC Sink</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- Quick Access Links -->
+  <div class="section-label" style="margin-top: 48px;">// OPERATIONAL MANUALS</div>
+  <div class="section-title">Guides & Reference</div>
+
+  <div class="link-grid">
+    <a href="docs/quickstart/" class="link-card anim-up">
+      <div class="link-card-title">→ Quick Start</div>
+      <div class="link-card-desc">Build, deploy, and verify in 7 steps. Infrastructure setup through Grafana dashboard import.</div>
+    </a>
+    <a href="docs/architecture/" class="link-card anim-up anim-d1">
+      <div class="link-card-title">→ Architecture</div>
+      <div class="link-card-desc">Data flow, module structure, Omnipackage design, version detection, and key design decisions.</div>
+    </a>
+    <a href="docs/configuration-reference/" class="link-card anim-up anim-d2">
+      <div class="link-card-title">→ Configuration Reference</div>
+      <div class="link-card-desc">Three-tier config merge, Spark/Hive/MR/Flink config keys, metric category switches, default values.</div>
+    </a>
+    <a href="docs/deployment-guide/" class="link-card anim-up">
+      <div class="link-card-title">→ Deployment Guide</div>
+      <div class="link-card-desc">Full deployment walkthrough: build artifacts, install scripts, version compatibility, port reference.</div>
+    </a>
+    <a href="docs/troubleshooting/" class="link-card anim-up anim-d1">
+      <div class="link-card-title">→ Troubleshooting</div>
+      <div class="link-card-desc">Decision tree, 7 common issues, log analysis, metrics verification script, performance tuning.</div>
+    </a>
+    <a href="docs/diagnostic/" class="link-card anim-up anim-d2">
+      <div class="link-card-title">→ Diagnostic Tool</div>
+      <div class="link-card-desc">End-to-end health checks: OTel → Kafka → Flink → MySQL pipeline verification.</div>
+    </a>
+  </div>
+
+  <!-- Grafana Dashboards Index -->
+  <div class="section-label" style="margin-top: 48px;">// VISUALIZATION — 13 GRAFANA DASHBOARDS</div>
+  <div class="section-title">Dashboards</div>
+  <div class="comp-grid">
+    <a href="docs/grafana-overview/" class="comp-pill anim-up">Overview</a>
+    <a href="docs/grafana-spark/" class="comp-pill anim-up anim-d1">Spark Deep Dive</a>
+    <a href="docs/grafana-mr/" class="comp-pill anim-up anim-d2">MR Deep Dive</a>
+    <a href="docs/grafana-hive-mr/" class="comp-pill anim-up anim-d3">Hive on MR</a>
+    <a href="docs/grafana-hive-spark/" class="comp-pill anim-up">Hive on Spark</a>
+    <a href="docs/grafana-spark-mr-hive/" class="comp-pill anim-up anim-d1">All Engines</a>
+    <a href="docs/grafana-cost-attribution/" class="comp-pill anim-up anim-d2">Cost Attribution</a>
+    <a href="docs/grafana-performance-analysis/" class="comp-pill anim-up anim-d3">Performance</a>
+    <a href="docs/grafana-io-analysis/" class="comp-pill anim-up">IO Analysis</a>
+    <a href="docs/grafana-reliability/" class="comp-pill anim-up anim-d1">Reliability</a>
+    <a href="docs/grafana-hive-analysis/" class="comp-pill anim-up anim-d2">Hive Analysis</a>
+    <a href="docs/grafana-capacity/" class="comp-pill anim-up anim-d3">Capacity</a>
+    <a href="docs/grafana-efficiency/" class="comp-pill anim-up">Efficiency</a>
+    <a href="docs/benchmarks/" class="comp-pill anim-up anim-d1" style="border-color: var(--red); color: var(--red);">Benchmarks</a>
+    <a href="docs/release/" class="comp-pill anim-up anim-d2">Release Guide</a>
+    <a href="docs/zh_cn/index/" class="comp-pill anim-up anim-d3" style="border-color: var(--gold); color: var(--gold);">中文文档</a>
+  </div>
+
+</div>
+
+<!-- ── FOOTER ── -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      HADOOP <span>TELEMETRY</span><br>STACK
+    </div>
+    <div class="footer-meta">
+      Licensed under <a href="https://github.com/xmg333/hadoop-telemetry-stack/blob/master/LICENSE">Apache 2.0</a><br>
+      <a href="https://github.com/xmg333/hadoop-telemetry-stack">github.com/xmg333/hadoop-telemetry-stack</a><br>
+      <br>
+      Built with Soviet Constructivism<br>
+      Proun Geometry · Industrial Typography · Signal Red
+    </div>
+    <div class="footer-meta">
+      Spark Plugin · MR Collector · MR Agent<br>
+      Hive Hook · Flink Consumer · Diagnostic Tool<br>
+      <br>
+      <span class="signal-dot"></span> SYSTEM OPERATIONAL
+    </div>
+  </div>
+</footer>
+
+<script>
+  function tick() {
+    var d = new Date();
+    document.getElementById('clock').textContent =
+      d.getUTCHours().toString().padStart(2,'0') + ':' +
+      d.getUTCMinutes().toString().padStart(2,'0') + ':' +
+      d.getUTCSeconds().toString().padStart(2,'0') + ' UTC';
+  }
+  tick(); setInterval(tick, 1000);
+</script>
+
+</body>
+</html>

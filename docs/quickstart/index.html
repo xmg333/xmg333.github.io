@@ -1,0 +1,1877 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Transparent Big Data Observability — Spark / MR / Hive Telemetry Collection" name="description"/>
+<link href=".." rel="prev"/>
+<link href="../deployment-guide/" rel="next"/>
+<link href="../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.6" name="generator"/>
+<title>Quick Start - Hadoop Telemetry Stack</title>
+<link href="../assets/stylesheets/main.484c7ddc.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#quick-start-spark-mr-hive-telemetry-deployment-guide">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Hadoop Telemetry Stack" class="md-header__button md-logo" data-md-component="logo" href=".." title="Hadoop Telemetry Stack">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Hadoop Telemetry Stack
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Quick Start
+            
+          </span>
+</div>
+</div>
+</div>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/xmg333/hadoop-telemetry-stack" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+</div>
+<div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Hadoop Telemetry Stack" class="md-nav__button md-logo" data-md-component="logo" href=".." title="Hadoop Telemetry Stack">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    Hadoop Telemetry Stack
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/xmg333/hadoop-telemetry-stack" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+</div>
+<div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#architecture-overview">
+<span class="md-ellipsis">
+      
+        Architecture Overview
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-build">
+<span class="md-ellipsis">
+      
+        1. Build
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-infrastructure-deployment">
+<span class="md-ellipsis">
+      
+        2. Infrastructure Deployment
+      
+    </span>
+</a>
+<nav aria-label="2. Infrastructure Deployment" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#21-otel-collector">
+<span class="md-ellipsis">
+      
+        2.1 OTel Collector
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#22-kafka">
+<span class="md-ellipsis">
+      
+        2.2 Kafka
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#23-mysql-clickhouse">
+<span class="md-ellipsis">
+      
+        2.3 MySQL / ClickHouse
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#24-flink-consumer-kafka-db">
+<span class="md-ellipsis">
+      
+        2.4 Flink Consumer (Kafka -&gt; DB)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#25-grafana">
+<span class="md-ellipsis">
+      
+        2.5 Grafana
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-component-deployment">
+<span class="md-ellipsis">
+      
+        3. Component Deployment
+      
+    </span>
+</a>
+<nav aria-label="3. Component Deployment" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#31-spark-plugin">
+<span class="md-ellipsis">
+      
+        3.1 Spark Plugin
+      
+    </span>
+</a>
+<nav aria-label="3.1 Spark Plugin" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#spark-3x-4x-sparkplugin-api">
+<span class="md-ellipsis">
+      
+        Spark 3.x / 4.x (SparkPlugin API)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#spark-2x-sparkextralisteners">
+<span class="md-ellipsis">
+      
+        Spark 2.x (spark.extraListeners)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuration-methods-pick-one">
+<span class="md-ellipsis">
+      
+        Configuration Methods (pick one)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#preset-configurations">
+<span class="md-ellipsis">
+      
+        Preset Configurations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#key-configuration-items">
+<span class="md-ellipsis">
+      
+        Key Configuration Items
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#32-mr-agent-task-level-real-time-metrics">
+<span class="md-ellipsis">
+      
+        3.2 MR Agent (Task-level Real-time Metrics)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#33-mr-collector-job-level-historical-metrics">
+<span class="md-ellipsis">
+      
+        3.3 MR Collector (Job-level Historical Metrics)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#34-hive-telemetry-hook">
+<span class="md-ellipsis">
+      
+        3.4 Hive Telemetry Hook
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-data-flow-verification">
+<span class="md-ellipsis">
+      
+        4. Data Flow Verification
+      
+    </span>
+</a>
+<nav aria-label="4. Data Flow Verification" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#check-if-otel-collector-received-data">
+<span class="md-ellipsis">
+      
+        Check if OTel Collector Received Data
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#check-messages-in-kafka">
+<span class="md-ellipsis">
+      
+        Check Messages in Kafka
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#check-mysql-data">
+<span class="md-ellipsis">
+      
+        Check MySQL Data
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#using-the-diagnostic-tool">
+<span class="md-ellipsis">
+      
+        Using the Diagnostic Tool
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-grafana-dashboard-configuration">
+<span class="md-ellipsis">
+      
+        5. Grafana Dashboard Configuration
+      
+    </span>
+</a>
+<nav aria-label="5. Grafana Dashboard Configuration" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#51-add-mysql-data-source">
+<span class="md-ellipsis">
+      
+        5.1 Add MySQL Data Source
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#52-import-dashboards">
+<span class="md-ellipsis">
+      
+        5.2 Import Dashboards
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#53-mr-dashboard-description">
+<span class="md-ellipsis">
+      
+        5.3 MR Dashboard Description
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-frequently-asked-questions">
+<span class="md-ellipsis">
+      
+        6. Frequently Asked Questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-version-compatibility">
+<span class="md-ellipsis">
+      
+        7. Version Compatibility
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+<span class="md-ellipsis">
+    
+  
+    Deployment Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Deployment Guide
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../deployment-guide/">
+<span class="md-ellipsis">
+    
+  
+    Full Deployment
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../infrastructure/">
+<span class="md-ellipsis">
+    
+  
+    Infrastructure
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../troubleshooting/">
+<span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+<span class="md-ellipsis">
+    
+  
+    Component Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Component Reference
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../spark-plugin/">
+<span class="md-ellipsis">
+    
+  
+    Spark Plugin
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../mr-telemetry/">
+<span class="md-ellipsis">
+    
+  
+    MR Collector/Agent
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../hive-hook/">
+<span class="md-ellipsis">
+    
+  
+    Hive Hook
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flink-consumer/">
+<span class="md-ellipsis">
+    
+  
+    Flink Consumer
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../diagnostic/">
+<span class="md-ellipsis">
+    
+  
+    Diagnostic Tool
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../architecture/">
+<span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../configuration-reference/">
+<span class="md-ellipsis">
+    
+  
+    Configuration Reference
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+<span class="md-ellipsis">
+    
+  
+    Grafana Dashboards
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Grafana Dashboards
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-overview/">
+<span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7_2" id="__nav_7_2_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Engine Views
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_2_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_7_2">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Engine Views
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-spark/">
+<span class="md-ellipsis">
+    
+  
+    Spark
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-mr/">
+<span class="md-ellipsis">
+    
+  
+    MapReduce
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-hive-mr/">
+<span class="md-ellipsis">
+    
+  
+    Hive on MR
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-hive-spark/">
+<span class="md-ellipsis">
+    
+  
+    Hive on Spark
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-spark-mr-hive/">
+<span class="md-ellipsis">
+    
+  
+    All Engines
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7_3" id="__nav_7_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Business Analysis
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_7_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Business Analysis
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-cost-attribution/">
+<span class="md-ellipsis">
+    
+  
+    Cost Attribution
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-performance-analysis/">
+<span class="md-ellipsis">
+    
+  
+    Performance Analysis
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-io-analysis/">
+<span class="md-ellipsis">
+    
+  
+    IO Analysis
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-reliability/">
+<span class="md-ellipsis">
+    
+  
+    Reliability
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-hive-analysis/">
+<span class="md-ellipsis">
+    
+  
+    Hive Analysis
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-capacity/">
+<span class="md-ellipsis">
+    
+  
+    Capacity Planning
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-efficiency/">
+<span class="md-ellipsis">
+    
+  
+    Efficiency Scoring
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Benchmarks
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release/">
+<span class="md-ellipsis">
+    
+  
+    Release Guide
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../zh_cn/">
+<span class="md-ellipsis">
+    
+  
+    中文文档
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#architecture-overview">
+<span class="md-ellipsis">
+      
+        Architecture Overview
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-build">
+<span class="md-ellipsis">
+      
+        1. Build
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-infrastructure-deployment">
+<span class="md-ellipsis">
+      
+        2. Infrastructure Deployment
+      
+    </span>
+</a>
+<nav aria-label="2. Infrastructure Deployment" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#21-otel-collector">
+<span class="md-ellipsis">
+      
+        2.1 OTel Collector
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#22-kafka">
+<span class="md-ellipsis">
+      
+        2.2 Kafka
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#23-mysql-clickhouse">
+<span class="md-ellipsis">
+      
+        2.3 MySQL / ClickHouse
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#24-flink-consumer-kafka-db">
+<span class="md-ellipsis">
+      
+        2.4 Flink Consumer (Kafka -&gt; DB)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#25-grafana">
+<span class="md-ellipsis">
+      
+        2.5 Grafana
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-component-deployment">
+<span class="md-ellipsis">
+      
+        3. Component Deployment
+      
+    </span>
+</a>
+<nav aria-label="3. Component Deployment" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#31-spark-plugin">
+<span class="md-ellipsis">
+      
+        3.1 Spark Plugin
+      
+    </span>
+</a>
+<nav aria-label="3.1 Spark Plugin" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#spark-3x-4x-sparkplugin-api">
+<span class="md-ellipsis">
+      
+        Spark 3.x / 4.x (SparkPlugin API)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#spark-2x-sparkextralisteners">
+<span class="md-ellipsis">
+      
+        Spark 2.x (spark.extraListeners)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuration-methods-pick-one">
+<span class="md-ellipsis">
+      
+        Configuration Methods (pick one)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#preset-configurations">
+<span class="md-ellipsis">
+      
+        Preset Configurations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#key-configuration-items">
+<span class="md-ellipsis">
+      
+        Key Configuration Items
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#32-mr-agent-task-level-real-time-metrics">
+<span class="md-ellipsis">
+      
+        3.2 MR Agent (Task-level Real-time Metrics)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#33-mr-collector-job-level-historical-metrics">
+<span class="md-ellipsis">
+      
+        3.3 MR Collector (Job-level Historical Metrics)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#34-hive-telemetry-hook">
+<span class="md-ellipsis">
+      
+        3.4 Hive Telemetry Hook
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-data-flow-verification">
+<span class="md-ellipsis">
+      
+        4. Data Flow Verification
+      
+    </span>
+</a>
+<nav aria-label="4. Data Flow Verification" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#check-if-otel-collector-received-data">
+<span class="md-ellipsis">
+      
+        Check if OTel Collector Received Data
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#check-messages-in-kafka">
+<span class="md-ellipsis">
+      
+        Check Messages in Kafka
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#check-mysql-data">
+<span class="md-ellipsis">
+      
+        Check MySQL Data
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#using-the-diagnostic-tool">
+<span class="md-ellipsis">
+      
+        Using the Diagnostic Tool
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-grafana-dashboard-configuration">
+<span class="md-ellipsis">
+      
+        5. Grafana Dashboard Configuration
+      
+    </span>
+</a>
+<nav aria-label="5. Grafana Dashboard Configuration" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#51-add-mysql-data-source">
+<span class="md-ellipsis">
+      
+        5.1 Add MySQL Data Source
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#52-import-dashboards">
+<span class="md-ellipsis">
+      
+        5.2 Import Dashboards
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#53-mr-dashboard-description">
+<span class="md-ellipsis">
+      
+        5.3 MR Dashboard Description
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-frequently-asked-questions">
+<span class="md-ellipsis">
+      
+        6. Frequently Asked Questions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-version-compatibility">
+<span class="md-ellipsis">
+      
+        7. Version Compatibility
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="quick-start-spark-mr-hive-telemetry-deployment-guide">Quick Start -- Spark / MR / Hive Telemetry Deployment Guide<a class="headerlink" href="#quick-start-spark-mr-hive-telemetry-deployment-guide" title="Permanent link">¶</a></h1>
+<h2 id="architecture-overview">Architecture Overview<a class="headerlink" href="#architecture-overview" title="Permanent link">¶</a></h2>
+<pre class="mermaid"><code>graph TD
+    SP["Spark Plugin&lt;br/&gt;(--jars)"]
+    MA["MR Agent&lt;br/&gt;(-javaagent)"]
+    HH["Hive Hook&lt;br/&gt;(hive.exec.post.hooks)"]
+    MC["MR Collector&lt;br/&gt;(standalone)"]
+
+    OTEL["OTel Collector&lt;br/&gt;(Kafka Export)"]
+    HS["Hadoop History Server&lt;br/&gt;REST API :19888"]
+    KAFKA["Kafka"]
+    FLINK["Flink Consumer&lt;br/&gt;(Kafka -&gt; DB)"]
+    MYSQL["MySQL"]
+    CH["ClickHouse"]
+    GRAFANA["Grafana (13 dashboards)"]
+
+    SP --&gt;|"OTLP gRPC :4317"| OTEL
+    MA --&gt;|"OTLP gRPC :4317"| OTEL
+    HH --&gt;|"OTLP gRPC :4317"| OTEL
+    HS --&gt;|"Polling Collection"| MC
+    MC --&gt;|"OTLP gRPC :4317"| OTEL
+
+    OTEL --&gt; KAFKA
+    KAFKA --&gt; FLINK
+    FLINK --&gt; MYSQL
+    FLINK --&gt; CH
+    MYSQL --&gt; GRAFANA
+    CH --&gt; GRAFANA</code></pre>
+<h2 id="1-build">1. Build<a class="headerlink" href="#1-build" title="Permanent link">¶</a></h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># Prerequisites: JDK 8, Maven 3.6+</span>
+git<span class="w"> </span>clone<span class="w"> </span>&lt;repo-url&gt;<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>spark-telemetry-listener
+
+<span class="c1"># Build Omnipackage (single JAR supporting Spark 2/3/4 + MR Agent/Collector + Hive Hook)</span>
+chmod<span class="w"> </span>+x<span class="w"> </span>build-omni.sh<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>./build-omni.sh
+
+<span class="c1"># Build output location</span>
+ls<span class="w"> </span>spark/spark-telemetry-dist-omni/target/spark-telemetry-dist-omni-*.jar
+
+<span class="c1"># Build individual components (optional)</span>
+mvn<span class="w"> </span>clean<span class="w"> </span>package<span class="w"> </span>-pl<span class="w"> </span>hive/hive-telemetry-hook,hive/hive-telemetry-hook-dist<span class="w"> </span>-am<span class="w"> </span>-DskipTests<span class="w">      </span><span class="c1"># Hive Hook</span>
+mvn<span class="w"> </span>clean<span class="w"> </span>package<span class="w"> </span>-pl<span class="w"> </span>flink/metrics-flink-consumer,flink/metrics-flink-consumer-dist<span class="w"> </span>-am<span class="w"> </span>-DskipTests<span class="w">  </span><span class="c1"># Flink Consumer</span>
+</code></pre></div>
+<h2 id="2-infrastructure-deployment">2. Infrastructure Deployment<a class="headerlink" href="#2-infrastructure-deployment" title="Permanent link">¶</a></h2>
+<h3 id="21-otel-collector">2.1 OTel Collector<a class="headerlink" href="#21-otel-collector" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># deploy/otel-collector/config.yaml</span>
+<span class="nt">extensions</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">health_check</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0.0.0:13133</span>
+
+<span class="nt">receivers</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">otlp</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">protocols</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">grpc</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0.0.0:4317</span>
+
+<span class="nt">exporters</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kafka</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">topic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">telemetry-metrics</span>
+<span class="w">    </span><span class="nt">encoding</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">otlp_proto</span>
+<span class="w">    </span><span class="nt">brokers</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kafka:9092</span>
+
+<span class="nt">service</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">extensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">health_check</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">pipelines</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">metrics</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">receivers</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">otlp</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">exporters</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">kafka</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Docker deployment</span>
+docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>otel-collector<span class="w"> </span>--network<span class="w"> </span>host<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/deploy/otel-collector/config.yaml:/etc/otelcol-contrib/config.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>otel/opentelemetry-collector-contrib:0.96.0<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--config<span class="o">=</span>/etc/otelcol-contrib/config.yaml
+</code></pre></div>
+<blockquote>
+<p><strong>Note</strong>: Must use <code>otel/opentelemetry-collector-contrib</code> (not the core version), as the core version does not include the Kafka exporter.</p>
+</blockquote>
+<h3 id="22-kafka">2.2 Kafka<a class="headerlink" href="#22-kafka" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># KRaft mode (no ZooKeeper required)</span>
+docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>kafka<span class="w"> </span>--network<span class="w"> </span>host<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">KAFKA_NODE_ID</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">KAFKA_PROCESS_ROLES</span><span class="o">=</span>broker,controller<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">KAFKA_LISTENERS</span><span class="o">=</span>PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">KAFKA_CONTROLLER_QUORUM_VOTERS</span><span class="o">=</span><span class="m">1</span>@localhost:9093<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">KAFKA_CONTROLLER_LISTENER_NAMES</span><span class="o">=</span>CONTROLLER<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">KAFKA_ADVERTISED_LISTENERS</span><span class="o">=</span>PLAINTEXT://<span class="k">$(</span>hostname<span class="k">)</span>:9092<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>apache/kafka:3.7.0
+
+<span class="c1"># Create topic</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>kafka<span class="w"> </span>/opt/kafka/bin/kafka-topics.sh<span class="w"> </span>--create<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--topic<span class="w"> </span>telemetry-metrics<span class="w"> </span>--bootstrap-server<span class="w"> </span>localhost:9092<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--partitions<span class="w"> </span><span class="m">3</span><span class="w"> </span>--replication-factor<span class="w"> </span><span class="m">1</span>
+</code></pre></div>
+<h3 id="23-mysql-clickhouse">2.3 MySQL / ClickHouse<a class="headerlink" href="#23-mysql-clickhouse" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># MySQL</span>
+docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>mysql<span class="w"> </span>--network<span class="w"> </span>host<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">MYSQL_ROOT_PASSWORD</span><span class="o">=</span>root123<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">MYSQL_DATABASE</span><span class="o">=</span>metrics_db<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>mysql:8.0
+
+<span class="c1"># ClickHouse (optional)</span>
+docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>clickhouse<span class="w"> </span>--network<span class="w"> </span>host<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>clickhouse/clickhouse-server:23.8
+</code></pre></div>
+<h3 id="24-flink-consumer-kafka-db">2.4 Flink Consumer (Kafka -&gt; DB)<a class="headerlink" href="#24-flink-consumer-kafka-db" title="Permanent link">¶</a></h3>
+<p>A Flink DataStream API-based Kafka consumption job, using Flink KafkaSource + Checkpoint for offset management.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Create configuration file flink-consumer.conf</span>
+<span class="c1"># Refer to conf/flink/flink-consumer-mysql.conf or flink-consumer-clickhouse.conf</span>
+
+<span class="c1"># Standalone run (no Flink cluster needed, uses Flink LocalEnvironment)</span>
+java<span class="w"> </span>-jar<span class="w"> </span>metrics-flink-consumer-dist-1.0.0-SNAPSHOT.jar<span class="w"> </span>/path/to/flink-consumer.conf
+
+<span class="c1"># Submit to Flink cluster (recommended for production)</span>
+/opt/flink-1.18.0/bin/flink<span class="w"> </span>run<span class="w"> </span>-c<span class="w"> </span>x.mg.metrics.flink.Main<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-m<span class="w"> </span>localhost:8081<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>/path/to/metrics-flink-consumer-dist-1.0.0-SNAPSHOT.jar<span class="w"> </span>/path/to/flink-consumer.conf
+
+<span class="c1"># Background submission (survives SSH disconnection)</span>
+nohup<span class="w"> </span>/opt/flink-1.18.0/bin/flink<span class="w"> </span>run<span class="w"> </span>-c<span class="w"> </span>x.mg.metrics.flink.Main<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-m<span class="w"> </span>localhost:8081<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>/path/to/metrics-flink-consumer-dist-1.0.0-SNAPSHOT.jar<span class="w"> </span>/path/to/flink-consumer.conf<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>&gt;<span class="w"> </span>/tmp/flink-submit.log<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">&amp;</span>
+
+<span class="c1"># Check cluster job status</span>
+curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:8081/jobs<span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">'import json,sys; [print(j["id"],j["status"]) for j in json.load(sys.stdin)["jobs"]]'</span>
+
+<span class="c1"># Cancel a job</span>
+/opt/flink-1.18.0/bin/flink<span class="w"> </span>cancel<span class="w"> </span>&lt;job-id&gt;
+</code></pre></div>
+<p>The Flink Consumer automatically creates tables on startup (15 category tables + <code>metric_events</code> unified wide table), no manual schema initialization needed. The <code>metric_events</code> wide table consolidates data from all engines for cross-engine analysis. Kafka offsets are managed by Flink checkpoint, with <code>checkpoint.path</code> as the checkpoint storage directory.</p>
+<h3 id="25-grafana">2.5 Grafana<a class="headerlink" href="#25-grafana" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>grafana<span class="w"> </span>--network<span class="w"> </span>host<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">GF_SECURITY_ADMIN_PASSWORD</span><span class="o">=</span>admin123<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>grafana/grafana:latest
+</code></pre></div>
+<p>For data source configuration and dashboard import, see section 6 below.</p>
+<hr/>
+<h2 id="3-component-deployment">3. Component Deployment<a class="headerlink" href="#3-component-deployment" title="Permanent link">¶</a></h2>
+<blockquote>
+<p>All sections below use the Omnipackage single JAR (<code>spark-telemetry-dist-omni-*.jar</code>),
+which auto-detects the Spark version (2.x / 3.x / 4.x), no need to select different JARs.</p>
+</blockquote>
+<h3 id="31-spark-plugin">3.1 Spark Plugin<a class="headerlink" href="#31-spark-plugin" title="Permanent link">¶</a></h3>
+<p>Copy the JAR to the same path on all nodes:</p>
+<div class="highlight"><pre><span></span><code>scp<span class="w"> </span>spark-telemetry-dist-omni-*.jar<span class="w"> </span>node:/opt/spark-telemetry-plugin.jar
+</code></pre></div>
+<h4 id="spark-3x-4x-sparkplugin-api">Spark 3.x / 4.x (SparkPlugin API)<a class="headerlink" href="#spark-3x-4x-sparkplugin-api" title="Permanent link">¶</a></h4>
+<div class="highlight"><pre><span></span><code>spark-submit<span class="w"> </span>--master<span class="w"> </span>yarn<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--jars<span class="w"> </span>/opt/spark-telemetry-plugin.jar<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--conf<span class="w"> </span>spark.plugins<span class="o">=</span>x.mg.metrics.sparktelemetry.adapter.SparkTelemetryPlugin<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--conf<span class="w"> </span>spark.telemetry.otel.exporter.endpoint<span class="o">=</span>http://otel-collector:4317<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--conf<span class="w"> </span>spark.telemetry.otel.service.name<span class="o">=</span>my-spark-app<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>your-app.jar
+</code></pre></div>
+<h4 id="spark-2x-sparkextralisteners">Spark 2.x (spark.extraListeners)<a class="headerlink" href="#spark-2x-sparkextralisteners" title="Permanent link">¶</a></h4>
+<div class="highlight"><pre><span></span><code>spark-submit<span class="w"> </span>--master<span class="w"> </span>yarn<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--jars<span class="w"> </span>/opt/spark-telemetry-plugin.jar<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--conf<span class="w"> </span>spark.extraListeners<span class="o">=</span>x.mg.metrics.sparktelemetry.adapter.SparkTelemetryListener<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--conf<span class="w"> </span>spark.telemetry.otel.exporter.endpoint<span class="o">=</span>http://otel-collector:4317<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--conf<span class="w"> </span>spark.telemetry.otel.service.name<span class="o">=</span>my-spark-app<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>your-app.jar
+</code></pre></div>
+<h4 id="configuration-methods-pick-one">Configuration Methods (pick one)<a class="headerlink" href="#configuration-methods-pick-one" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spark conf inline</td>
+<td><code>--conf spark.telemetry.otel.exporter.endpoint=http://...</code></td>
+</tr>
+<tr>
+<td>HOCON config file</td>
+<td><code>--conf spark.telemetry.config.path=/etc/telemetry.conf</code></td>
+</tr>
+<tr>
+<td>Hybrid (conf overrides file)</td>
+<td>Use both simultaneously, Spark conf takes highest priority</td>
+</tr>
+</tbody>
+</table>
+<h4 id="preset-configurations">Preset Configurations<a class="headerlink" href="#preset-configurations" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Preset</th>
+<th>Path</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>basic</td>
+<td><code>conf/spark{version}/basic/telemetry.conf</code></td>
+<td>Core task metrics only, minimal overhead</td>
+</tr>
+<tr>
+<td>full</td>
+<td><code>conf/spark{version}/full/telemetry.conf</code></td>
+<td>All metrics (task + stage + job + SQL)</td>
+</tr>
+</tbody>
+</table>
+<p>Preset configuration directories correspond to Spark versions:</p>
+<table>
+<thead>
+<tr>
+<th>Directory</th>
+<th>Applicable Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>conf/spark24-hadoop27-hive2.3.9/</code></td>
+<td>Spark 2.4 + Hadoop 2.7</td>
+</tr>
+<tr>
+<td><code>conf/spark30-hadoop3-hive2.3.9/</code></td>
+<td>Spark 3.0 + Hadoop 3</td>
+</tr>
+<tr>
+<td><code>conf/spark32-hadoop3-hive2.3.9/</code></td>
+<td>Spark 3.2 + Hadoop 3</td>
+</tr>
+<tr>
+<td><code>conf/spark35-hadoop3-hive2.3.9/</code></td>
+<td>Spark 3.5 + Hadoop 3</td>
+</tr>
+<tr>
+<td><code>conf/spark40-hadoop3-hive2.3.9/</code></td>
+<td>Spark 4.0 + Hadoop 3</td>
+</tr>
+</tbody>
+</table>
+<h4 id="key-configuration-items">Key Configuration Items<a class="headerlink" href="#key-configuration-items" title="Permanent link">¶</a></h4>
+<blockquote>
+<p><strong>YARN Mode Requirement</strong>: When using <code>--master yarn</code>, the <code>HADOOP_CONF_DIR</code> environment variable must point to the Hadoop configuration directory (containing <code>core-site.xml</code>, <code>yarn-site.xml</code>, <code>mapred-site.xml</code>). <code>mapred-site.xml</code> must include <code>mapreduce.framework.name=yarn</code> and <code>mapreduce.application.classpath</code>, otherwise MR/Hive will fall back to local mode.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="c1"># Required</span>
+<span class="na">spark.telemetry.otel.exporter.endpoint</span><span class="o">=</span><span class="s">http://otel-collector:4317</span>
+
+<span class="c1"># Recommended configuration</span>
+<span class="na">spark.telemetry.otel.service.name</span><span class="o">=</span><span class="s">my-spark-app          # Service name, used for Grafana filtering</span>
+<span class="na">spark.telemetry.otel.export.interval.ms</span><span class="o">=</span><span class="s">10000            # Export interval (default 10s)</span>
+<span class="na">spark.telemetry.config.path</span><span class="o">=</span><span class="s">/etc/telemetry.conf          # Config file path</span>
+
+<span class="c1"># Metric switches (default values below)</span>
+<span class="na">spark.telemetry.metrics.task.execution</span><span class="o">=</span><span class="s">true              # task CPU/GC/memory/duration</span>
+<span class="na">spark.telemetry.metrics.task.shuffle-extended</span><span class="o">=</span><span class="s">true       # detailed shuffle metrics</span>
+<span class="na">spark.telemetry.metrics.task.info</span><span class="o">=</span><span class="s">true                   # task host/locality info</span>
+<span class="na">spark.telemetry.metrics.stage.detailed</span><span class="o">=</span><span class="s">true              # stage-level metrics</span>
+<span class="na">spark.telemetry.metrics.job.lifecycle</span><span class="o">=</span><span class="s">true               # job lifecycle events</span>
+<span class="na">spark.telemetry.metrics.sql.query-execution</span><span class="o">=</span><span class="s">true         # SQL execution metrics (join/shuffle bytes/query text)</span>
+<span class="na">spark.telemetry.sql.max-length</span><span class="o">=</span><span class="s">4096                      # SQL text max truncation length (characters)</span>
+</code></pre></div>
+<blockquote>
+<p><strong>Note</strong>: conf keys must include the full path including the <code>.otel.</code> segment. Correct: <code>spark.telemetry.otel.exporter.endpoint</code>,
+Wrong: <code>spark.telemetry.exporter.endpoint</code>.</p>
+</blockquote>
+<hr/>
+<h3 id="32-mr-agent-task-level-real-time-metrics">3.2 MR Agent (Task-level Real-time Metrics)<a class="headerlink" href="#32-mr-agent-task-level-real-time-metrics" title="Permanent link">¶</a></h3>
+<p>Injects into Mapper/Reducer JVMs via Java Agent, collecting task-level IO counters.</p>
+<blockquote>
+<p><strong>Prerequisite</strong>: Ensure <code>mapred-site.xml</code> has <code>mapreduce.framework.name=yarn</code> configured, otherwise MR jobs will run in local mode and the Agent cannot be distributed via YARN.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="c1"># 1. Copy JAR to Hadoop node</span>
+scp<span class="w"> </span>spark-telemetry-dist-omni-*.jar<span class="w"> </span>node:/opt/hadoop/lib/mr-telemetry-agent.jar
+
+<span class="c1"># 2. Configure mapred-site.xml</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- mapred-site.xml --&gt;</span>
+<span class="nt">&lt;property&gt;</span>
+<span class="w">  </span><span class="nt">&lt;name&gt;</span>mapreduce.framework.name<span class="nt">&lt;/name&gt;</span>
+<span class="w">  </span><span class="nt">&lt;value&gt;</span>yarn<span class="nt">&lt;/value&gt;</span>
+<span class="nt">&lt;/property&gt;</span>
+<span class="nt">&lt;property&gt;</span>
+<span class="w">  </span><span class="nt">&lt;name&gt;</span>mapreduce.map.java.opts<span class="nt">&lt;/name&gt;</span>
+<span class="w">  </span><span class="nt">&lt;value&gt;</span>-javaagent:/opt/hadoop/lib/mr-telemetry-agent.jar<span class="w"> </span>-Dmr.telemetry.agent.otel.exporter.endpoint=http://otel-collector:4317<span class="nt">&lt;/value&gt;</span>
+<span class="nt">&lt;/property&gt;</span>
+<span class="nt">&lt;property&gt;</span>
+<span class="w">  </span><span class="nt">&lt;name&gt;</span>mapreduce.reduce.java.opts<span class="nt">&lt;/name&gt;</span>
+<span class="w">  </span><span class="nt">&lt;value&gt;</span>-javaagent:/opt/hadoop/lib/mr-telemetry-agent.jar<span class="w"> </span>-Dmr.telemetry.agent.otel.exporter.endpoint=http://otel-collector:4317<span class="nt">&lt;/value&gt;</span>
+<span class="nt">&lt;/property&gt;</span>
+</code></pre></div>
+<p>MR Agent-collected metrics are written to the <code>mr_task_metrics</code> table:
+- <code>map_input_records</code>, <code>map_output_records</code>, <code>map_output_bytes</code>
+- <code>reduce_input_records</code>, <code>reduce_output_records</code>, <code>reduce_shuffle_bytes</code>
+- <code>spilled_records</code></p>
+<hr/>
+<h3 id="33-mr-collector-job-level-historical-metrics">3.3 MR Collector (Job-level Historical Metrics)<a class="headerlink" href="#33-mr-collector-job-level-historical-metrics" title="Permanent link">¶</a></h3>
+<p>A standalone process that polls the Hadoop History Server REST API to collect completed MR job metrics.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 1. Create configuration file mr-collector.conf</span>
+<span class="c1"># Refer to conf/examples/mr-collector.conf.example or conf/spark35-hadoop3-hive2.3.9/mr-collector.conf</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code># mr-collector.conf
+mr-telemetry {
+  history-server {
+    url = "http://hadoop-historyserver:19888"
+    poll.interval.secs = 30
+  }
+  otel {
+    exporter.endpoint = "http://otel-collector:4317"
+    service.name = "mr-telemetry-collector"
+    export.interval.ms = 10000
+  }
+  state {
+    file = "/tmp/mr-telemetry-state.json"   # Resume from checkpoint, no duplicate collection after restart
+  }
+  collection {
+    job.counters = true      # job-level: HDFS IO, CPU, GC, maps/reduces count
+    task.counters = false    # task-level (large data volume, enable on demand)
+    job.details = true       # job name, user, status
+  }
+}
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># 2. Run (using Omnipackage)</span>
+java<span class="w"> </span>-jar<span class="w"> </span>spark-telemetry-dist-omni-*.jar<span class="w"> </span>--mr-collector<span class="w"> </span>/path/to/mr-collector.conf
+
+<span class="c1"># 3. For production, use systemd or nohup for background execution</span>
+nohup<span class="w"> </span>java<span class="w"> </span>-jar<span class="w"> </span>spark-telemetry-dist-omni-*.jar<span class="w"> </span>--mr-collector<span class="w"> </span>/etc/mr-collector.conf<span class="w"> </span><span class="p">&amp;</span>
+</code></pre></div>
+<p>MR Collector-collected metrics are written to the <code>mr_job_metrics</code> table:
+- <code>elapsed_time_ms</code>, <code>state</code>, <code>launched_maps</code>, <code>launched_reduces</code>
+- <code>hdfs_bytes_read</code>, <code>hdfs_bytes_written</code>, <code>file_bytes_read</code>, <code>file_bytes_written</code>
+- <code>cpu_time_ms</code>, <code>gc_time_ms</code></p>
+<hr/>
+<h3 id="34-hive-telemetry-hook">3.4 Hive Telemetry Hook<a class="headerlink" href="#34-hive-telemetry-hook" title="Permanent link">¶</a></h3>
+<p>Captures HiveServer2 query metrics (engine-independent, supports MR and Spark engines).</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 1. Place the Omnipackage JAR in HiveServer2 auxlib (auto-loaded, no need for hive.aux.jars.path)</span>
+cp<span class="w"> </span>spark-telemetry-dist-omni-*.jar<span class="w"> </span><span class="nv">$HIVE_HOME</span>/auxlib/
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- hive-site.xml --&gt;</span>
+<span class="nt">&lt;property&gt;</span>
+<span class="w">  </span><span class="nt">&lt;name&gt;</span>hive.exec.post.hooks<span class="nt">&lt;/name&gt;</span>
+<span class="w">  </span><span class="nt">&lt;value&gt;</span>x.mg.metrics.hivetelemetry.HiveTelemetryHook<span class="nt">&lt;/value&gt;</span>
+<span class="nt">&lt;/property&gt;</span>
+<span class="nt">&lt;property&gt;</span>
+<span class="w">  </span><span class="nt">&lt;name&gt;</span>hive.telemetry.otel.exporter.endpoint<span class="nt">&lt;/name&gt;</span>
+<span class="w">  </span><span class="nt">&lt;value&gt;</span>http://otel-collector:4317<span class="nt">&lt;/value&gt;</span>
+<span class="nt">&lt;/property&gt;</span>
+<span class="nt">&lt;property&gt;</span>
+<span class="w">  </span><span class="nt">&lt;name&gt;</span>hive.telemetry.sql.max-length<span class="nt">&lt;/name&gt;</span>
+<span class="w">  </span><span class="nt">&lt;value&gt;</span>4096<span class="nt">&lt;/value&gt;</span>
+<span class="nt">&lt;/property&gt;</span>
+</code></pre></div>
+<p>Hive Hook-collected metrics are written to the <code>hive_query_metrics</code> and <code>hive_table_io_metrics</code> tables:
+- <code>query_id</code>, <code>operation</code>, <code>user_name</code>, <code>success</code>, <code>duration_ms</code>
+- <code>input_bytes</code>, <code>output_bytes</code>, <code>input_rows</code>, <code>output_rows</code>
+- <code>input_tables</code>, <code>output_tables</code>, <code>execution_engine</code> (mr/spark)</p>
+<hr/>
+<h2 id="4-data-flow-verification">4. Data Flow Verification<a class="headerlink" href="#4-data-flow-verification" title="Permanent link">¶</a></h2>
+<h3 id="check-if-otel-collector-received-data">Check if OTel Collector Received Data<a class="headerlink" href="#check-if-otel-collector-received-data" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>logs<span class="w"> </span>otel-collector<span class="w"> </span>--tail<span class="o">=</span><span class="m">50</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">"spark\.|mr\.|hive\."</span>
+</code></pre></div>
+<h3 id="check-messages-in-kafka">Check Messages in Kafka<a class="headerlink" href="#check-messages-in-kafka" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>kafka<span class="w"> </span>/opt/kafka/bin/kafka-dump-log.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--files<span class="w"> </span>/tmp/kafka-logs/telemetry-metrics-0/00000000000000000000.log
+</code></pre></div>
+<h3 id="check-mysql-data">Check MySQL Data<a class="headerlink" href="#check-mysql-data" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">-- Spark metrics</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">task_metrics</span><span class="p">;</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">sql_query_metrics</span><span class="p">;</span>
+
+<span class="c1">-- MR metrics</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">mr_job_metrics</span><span class="p">;</span><span class="w">    </span><span class="c1">-- MR Collector</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">mr_task_metrics</span><span class="p">;</span><span class="w">   </span><span class="c1">-- MR Agent</span>
+
+<span class="c1">-- Hive metrics</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">hive_query_metrics</span><span class="p">;</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">hive_table_io_metrics</span><span class="p">;</span>
+
+<span class="c1">-- Unified wide table</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">engine</span><span class="p">,</span><span class="w"> </span><span class="n">event_type</span><span class="p">,</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">metric_events</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">engine</span><span class="p">,</span><span class="w"> </span><span class="n">event_type</span><span class="p">;</span>
+</code></pre></div>
+<h3 id="using-the-diagnostic-tool">Using the Diagnostic Tool<a class="headerlink" href="#using-the-diagnostic-tool" title="Permanent link">¶</a></h3>
+<p>Build and run the diagnostic tool to automatically verify all backend components and application configuration:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Build diagnostic tool</span>
+mvn<span class="w"> </span>clean<span class="w"> </span>package<span class="w"> </span>-pl<span class="w"> </span>diagnostic/diagnostic-core<span class="w"> </span>-am<span class="w"> </span>-DskipTests
+
+<span class="c1"># Run (interactive CLI, JLine terminal)</span>
+java<span class="w"> </span>-jar<span class="w"> </span>diagnostic/diagnostic-core/target/diagnostic-core-1.0.0-SNAPSHOT.jar
+
+<span class="c1"># Specify configuration file</span>
+java<span class="w"> </span>-jar<span class="w"> </span>diagnostic/diagnostic-core/target/diagnostic-core-1.0.0-SNAPSHOT.jar<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--config<span class="w"> </span>/path/to/diagnostic.conf
+</code></pre></div>
+<p>The diagnostic tool automatically performs the following checks:</p>
+<table>
+<thead>
+<tr>
+<th>Check Item</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spark Plugin</td>
+<td>JAR existence, spark.plugins configuration</td>
+</tr>
+<tr>
+<td>Hive Hook</td>
+<td>hive.exec.post.hooks configuration</td>
+</tr>
+<tr>
+<td>MR Collector</td>
+<td>Configuration file, History Server connectivity</td>
+</tr>
+<tr>
+<td>OTel Collector</td>
+<td>gRPC port connectivity, Health Check</td>
+</tr>
+<tr>
+<td>Kafka</td>
+<td>Broker connectivity, Topic existence</td>
+</tr>
+<tr>
+<td>MySQL</td>
+<td>Database connectivity, table schema validation</td>
+</tr>
+<tr>
+<td>Grafana Dashboards</td>
+<td>Dashboard SQL query validity check</td>
+</tr>
+<tr>
+<td>Data Flow</td>
+<td>End-to-end data integrity verification</td>
+</tr>
+</tbody>
+</table>
+<p>Configuration file reference: <code>diagnostic/diagnostic-core/src/main/resources/diagnostic.conf</code></p>
+<hr/>
+<h2 id="5-grafana-dashboard-configuration">5. Grafana Dashboard Configuration<a class="headerlink" href="#5-grafana-dashboard-configuration" title="Permanent link">¶</a></h2>
+<h3 id="51-add-mysql-data-source">5.1 Add MySQL Data Source<a class="headerlink" href="#51-add-mysql-data-source" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code>URL: mysql:3306
+Database: metrics_db
+User: metrics / Password: metrics
+</code></pre></div>
+<p>Set data source UID to <code>DS_MYSQL</code> (dashboard SQL queries reference this UID).</p>
+<h3 id="52-import-dashboards">5.2 Import Dashboards<a class="headerlink" href="#52-import-dashboards" title="Permanent link">¶</a></h3>
+<p>Import the JSON files from the <code>deploy/grafana/</code> directory into Grafana:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Dashboard Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>overview.json</code></td>
+<td>Platform Telemetry Overview</td>
+<td>Full platform overview</td>
+</tr>
+<tr>
+<td><code>spark.json</code></td>
+<td>Spark Telemetry</td>
+<td>Task/Stage/SQL metrics</td>
+</tr>
+<tr>
+<td><code>mr.json</code></td>
+<td>MapReduce Telemetry</td>
+<td>Job Level + Task Level</td>
+</tr>
+<tr>
+<td><code>hive-mr.json</code></td>
+<td>Hive on MR Telemetry</td>
+<td>Hive MR engine queries</td>
+</tr>
+<tr>
+<td><code>hive-spark.json</code></td>
+<td>Hive on Spark Telemetry</td>
+<td>Hive Spark engine queries</td>
+</tr>
+<tr>
+<td><code>spark-mr-telemetry-dashboard.json</code></td>
+<td>Spark/MR/Hive Combined Panel</td>
+<td>Consolidated view</td>
+</tr>
+<tr>
+<td><code>hive-analysis.json</code></td>
+<td>Hive Query &amp; Data Lineage Analysis</td>
+<td>Operation distribution, table IO, execution engine comparison</td>
+</tr>
+<tr>
+<td><code>performance-analysis.json</code></td>
+<td>Performance Anomaly &amp; Bottleneck Analysis</td>
+<td>Stage duration, GC overhead, data skew detection</td>
+</tr>
+<tr>
+<td><code>efficiency.json</code></td>
+<td>Comprehensive Efficiency Score</td>
+<td>Resource efficiency score, queue efficiency comparison</td>
+</tr>
+<tr>
+<td><code>reliability.json</code></td>
+<td>Reliability &amp; Failure Analysis</td>
+<td>Task success rate trends, failure events</td>
+</tr>
+<tr>
+<td><code>capacity.json</code></td>
+<td>Capacity Planning &amp; Resource Utilization</td>
+<td>Task concurrency, memory trends, GC frequency</td>
+</tr>
+<tr>
+<td><code>cost-attribution.json</code></td>
+<td>Cost Attribution &amp; Resource Ranking</td>
+<td>User/queue/application resource ranking</td>
+</tr>
+<tr>
+<td><code>io-analysis.json</code></td>
+<td>Data Throughput &amp; IO Analysis</td>
+<td>Cross-engine IO throughput, Shuffle analysis</td>
+</tr>
+</tbody>
+</table>
+<h3 id="53-mr-dashboard-description">5.3 MR Dashboard Description<a class="headerlink" href="#53-mr-dashboard-description" title="Permanent link">¶</a></h3>
+<p>The MR dashboard is divided into two tiers (with different data sources):</p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Data Source</th>
+<th>Collection Method</th>
+<th>Dashboard Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Job Level</strong></td>
+<td><code>mr_job_metrics</code></td>
+<td>MR Collector (History Server)</td>
+<td>Job count, duration, success rate, HDFS IO, CPU/GC</td>
+</tr>
+<tr>
+<td><strong>Task Level</strong></td>
+<td><code>mr_task_metrics</code></td>
+<td>MR Agent (javaagent)</td>
+<td>Map/Reduce task count, output bytes, shuffle bytes, records</td>
+</tr>
+</tbody>
+</table>
+<p>The two tiers run independently and can be deployed separately or together.</p>
+<hr/>
+<h2 id="6-frequently-asked-questions">6. Frequently Asked Questions<a class="headerlink" href="#6-frequently-asked-questions" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Cause</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ClassNotFoundException: scala.$less$colon$less</code></td>
+<td>Old JAR in <code>$SPARK_HOME/jars/</code>, or <code>scala-collection-compat</code> falsely detecting Scala 2.13</td>
+<td>Delete old JARs from <code>$SPARK_HOME/jars/</code>, use the latest Omnipackage</td>
+</tr>
+<tr>
+<td><code>No GrpcSenderProvider found</code></td>
+<td>Shade missing OkHttp3/Kotlin dependencies</td>
+<td>Ensure building with <code>build-omni.sh</code>, do not shade independently</td>
+</tr>
+<tr>
+<td>Short jobs have no metrics</td>
+<td>Job completes before OTel first export</td>
+<td>Reduce <code>spark.telemetry.otel.export.interval.ms</code> (e.g., 5000)</td>
+</tr>
+<tr>
+<td><code>module-info.class</code> conflict</td>
+<td>JDK 9+ module system conflict</td>
+<td><code>zip -d &lt;jar&gt; META-INF/versions/9/module-info.class</code></td>
+</tr>
+<tr>
+<td>SQL shuffle_bytes NULL</td>
+<td>AQE <code>inputPlan</code> returns initial plan</td>
+<td>Already fixed in latest version, uses reflection to access <code>currentPhysicalPlan</code></td>
+</tr>
+<tr>
+<td>Hive dashboard <code>Unknown column 'mr'</code></td>
+<td>Old Grafana dashboard version</td>
+<td>Re-import <code>deploy/grafana/hive-mr.json</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="7-version-compatibility">7. Version Compatibility<a class="headerlink" href="#7-version-compatibility" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Minimum Version</th>
+<th>Verified Versions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spark</td>
+<td>2.4.x</td>
+<td>2.4.4, 3.0.x, 3.2.0, 3.5.8</td>
+</tr>
+<tr>
+<td>Hadoop</td>
+<td>2.7.x</td>
+<td>2.7.0, 3.2.0, 3.4.3</td>
+</tr>
+<tr>
+<td>Hive</td>
+<td>2.3.x</td>
+<td>2.3.9, 3.1.3</td>
+</tr>
+<tr>
+<td>Java</td>
+<td>8</td>
+<td>OpenJDK 8u482</td>
+</tr>
+<tr>
+<td>Kafka</td>
+<td>3.x</td>
+<td>3.7.0, 3.9.2</td>
+</tr>
+<tr>
+<td>Flink</td>
+<td>1.18</td>
+<td>1.18.0</td>
+</tr>
+<tr>
+<td>OTel Collector</td>
+<td>0.96+</td>
+<td>0.96.0</td>
+</tr>
+<tr>
+<td>MySQL</td>
+<td>8.0</td>
+<td>8.0</td>
+</tr>
+<tr>
+<td>ClickHouse</td>
+<td>23.x</td>
+<td>23.8</td>
+</tr>
+<tr>
+<td>Grafana</td>
+<td>10.x</td>
+<td>latest</td>
+</tr>
+</tbody>
+</table>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.suggest"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+</body>
+</html>

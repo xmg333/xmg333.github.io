@@ -1,0 +1,2627 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Transparent Big Data Observability — Spark / MR / Hive Telemetry Collection">
+      
+      
+      
+      
+        <link rel="prev" href="../hive-hook/">
+      
+      
+        <link rel="next" href="../diagnostic/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Flink Consumer - Hadoop Telemetry Stack</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#flink-metrics-consumer-deployment-visualization-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Hadoop Telemetry Stack" class="md-header__button md-logo" aria-label="Hadoop Telemetry Stack" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Hadoop Telemetry Stack
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Flink Consumer
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/xmg333/hadoop-telemetry-stack" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Hadoop Telemetry Stack" class="md-nav__button md-logo" aria-label="Hadoop Telemetry Stack" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Hadoop Telemetry Stack
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/xmg333/hadoop-telemetry-stack" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deployment Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Full Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../infrastructure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Infrastructure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Component Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Component Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spark-plugin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spark Plugin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mr-telemetry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MR Collector/Agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hive-hook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hive Hook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flink Consumer
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flink Consumer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deployment
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deployment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#database-preparation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database Preparation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Database Preparation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mysql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MySQL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clickhouse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ClickHouse
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#important-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Important Notes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database-table-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database Table Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Database Table Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spark_task_metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spark_task_metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spark_stage_metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spark_stage_metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spark_job_metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spark_job_metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spark_jvm_memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spark_jvm_memory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spark_jvm_gc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spark_jvm_gc
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spark_sql_metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spark_sql_metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hive_query_metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hive_query_metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#histogram-bucket-tables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Histogram Bucket Tables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unified_metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        unified_metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stage-governance-metrics-spark_stage_skew" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stage Governance Metrics (spark_stage_skew)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Stage Governance Metrics (spark_stage_skew)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#governance-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance Dimensions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#table-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#grafana-visualization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Grafana Visualization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Grafana Visualization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#import" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Import
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-source-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Source Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dashboard-panels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dashboard Panels
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alert-thresholds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alert Thresholds
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#governance-query-examples-mysql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance Query Examples (MySQL)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagnostic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diagnostic Tool
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Grafana Dashboards
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Grafana Dashboards
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_2" id="__nav_7_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engine Views
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Engine Views
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-spark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spark
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-mr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MapReduce
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-hive-mr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hive on MR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-hive-spark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hive on Spark
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-spark-mr-hive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All Engines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_3" id="__nav_7_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Business Analysis
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Business Analysis
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-cost-attribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cost Attribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-performance-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-io-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IO Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-reliability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reliability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-hive-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hive Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-capacity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Capacity Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-efficiency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Efficiency Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../benchmarks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmarks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../zh_cn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    中文文档
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deployment
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deployment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#database-preparation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database Preparation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Database Preparation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mysql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MySQL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clickhouse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ClickHouse
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#important-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Important Notes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database-table-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database Table Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Database Table Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spark_task_metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spark_task_metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spark_stage_metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spark_stage_metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spark_job_metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spark_job_metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spark_jvm_memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spark_jvm_memory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spark_jvm_gc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spark_jvm_gc
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spark_sql_metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spark_sql_metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hive_query_metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hive_query_metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#histogram-bucket-tables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Histogram Bucket Tables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unified_metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        unified_metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stage-governance-metrics-spark_stage_skew" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stage Governance Metrics (spark_stage_skew)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Stage Governance Metrics (spark_stage_skew)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#governance-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance Dimensions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#table-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#grafana-visualization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Grafana Visualization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Grafana Visualization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#import" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Import
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-source-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Source Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dashboard-panels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dashboard Panels
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alert-thresholds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alert Thresholds
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#governance-query-examples-mysql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Governance Query Examples (MySQL)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="flink-metrics-consumer-deployment-visualization-reference">Flink Metrics Consumer -- Deployment &amp; Visualization Reference<a class="headerlink" href="#flink-metrics-consumer-deployment-visualization-reference" title="Permanent link">&para;</a></h1>
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<p>The Flink Consumer is built on the Flink DataStream API. It consumes OTLP protobuf metrics from Kafka via Flink KafkaSource, then deserializes, classifies, aggregates into wide rows, and writes to MySQL or ClickHouse.</p>
+<div class="highlight"><pre><span></span><code>Kafka (OTLP Protobuf) -&gt; Flink KafkaSource -&gt; OtlpDeserializationSchema
+  -&gt; MetricRecordSplitFlatMap -&gt; MetricNameFilter -&gt; .keyBy(item -&gt; &quot;all&quot;) -&gt; AccumulatingProcessFunction
+  -&gt; FlinkCategoryJdbcSink -&gt; MySQL / ClickHouse
+</code></pre></div>
+<p>Core operators:
+- <strong>OtlpDeserializationSchema</strong>: Deserializes OTLP protobuf bytes from Kafka into <code>MetricRecord</code> (containing <code>MetricSample</code> + <code>HistogramBucket</code>)
+- <strong>MetricRecordSplitFlatMap</strong>: Splits <code>MetricRecord</code> into individual <code>MetricItem</code> (a single sample or bucket)
+- <strong>AccumulatingProcessFunction</strong>: A Flink <code>ProcessFunction</code> that uses <code>ValueState&lt;WideRowAccumulator&gt;</code> to manage aggregation state, triggering flush based on batch-size thresholds and processing-time timers. Supports Flink checkpoint fault recovery
+- <strong>FlinkCategoryJdbcSink</strong>: A Flink <code>RichSinkFunction</code> that manages JDBC connection lifecycle (<code>open()</code>/<code>close()</code>), writing <code>FlushResult</code> to 15 category tables + <code>unified_metrics</code> unified wide table</p>
+<h2 id="deployment">Deployment<a class="headerlink" href="#deployment" title="Permanent link">&para;</a></h2>
+<h3 id="database-preparation">Database Preparation<a class="headerlink" href="#database-preparation" title="Permanent link">&para;</a></h3>
+<h4 id="mysql">MySQL<a class="headerlink" href="#mysql" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">metrics_db</span><span class="p">;</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">USER</span><span class="w"> </span><span class="s1">&#39;metrics&#39;</span><span class="o">@</span><span class="s1">&#39;%&#39;</span><span class="w"> </span><span class="n">IDENTIFIED</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="s1">&#39;metrics&#39;</span><span class="p">;</span>
+<span class="k">GRANT</span><span class="w"> </span><span class="k">ALL</span><span class="w"> </span><span class="k">PRIVILEGES</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">metrics_db</span><span class="p">.</span><span class="o">*</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="s1">&#39;metrics&#39;</span><span class="o">@</span><span class="s1">&#39;%&#39;</span><span class="p">;</span>
+</code></pre></div>
+<p>Tables (15 category tables + <code>unified_metrics</code> unified wide table) are auto-created on startup -- no manual DDL needed.</p>
+<h4 id="clickhouse">ClickHouse<a class="headerlink" href="#clickhouse" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">metrics_db</span><span class="p">;</span>
+</code></pre></div>
+<p>Tables are also auto-created, using ClickHouse-specific types (<code>DateTime64(3)</code>, <code>LowCardinality(String)</code>, <code>Nullable(Float64)</code>, etc.) with monthly partitioning.</p>
+<h3 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h3>
+<p>Create <code>flink-consumer.conf</code>:</p>
+<div class="highlight"><pre><span></span><code>flink-consumer {
+  kafka {
+    bootstrap.servers = &quot;kafka:9092&quot;
+    topic = &quot;telemetry-metrics&quot;
+    group.id = &quot;flink-metrics-consumer&quot;
+    startup.mode = &quot;earliest-offset&quot;  # earliest-offset | latest-offset
+    checkpoint.path = &quot;/tmp/flink-consumer-checkpoint&quot;  # Flink checkpoint storage path
+  }
+
+  sink {
+    type = &quot;mysql&quot;  # mysql | clickhouse
+
+    mysql {
+      url = &quot;jdbc:mysql://mysql:3306/metrics_db&quot;
+      user = &quot;metrics&quot;
+      password = &quot;metrics&quot;
+      batch.size = 1000
+      flush.interval.ms = 5000
+    }
+
+    clickhouse {
+      url = &quot;jdbc:clickhouse://clickhouse:8123/metrics_db&quot;
+      user = &quot;default&quot;
+      password = &quot;&quot;
+      batch.size = 5000
+      flush.interval.ms = 3000
+    }
+  }
+
+  filter {
+    metric.name.include = [&quot;.*&quot;]
+    metric.name.exclude = []
+  }
+
+  processing {
+    parallelism = 2
+  }
+}
+</code></pre></div>
+<h3 id="running">Running<a class="headerlink" href="#running" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Standalone (self-contained JAR, uses Flink LocalEnvironment)</span>
+java<span class="w"> </span>-jar<span class="w"> </span>metrics-flink-consumer-dist.jar<span class="w"> </span>flink-consumer.conf
+
+<span class="c1"># Submit to Flink cluster (recommended for production)</span>
+/opt/flink-1.18.0/bin/flink<span class="w"> </span>run<span class="w"> </span>-c<span class="w"> </span>x.mg.metrics.flink.Main<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-m<span class="w"> </span>localhost:8081<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>metrics-flink-consumer-dist.jar<span class="w"> </span>flink-consumer.conf
+
+<span class="c1"># Background submit (survives SSH disconnect)</span>
+nohup<span class="w"> </span>/opt/flink-1.18.0/bin/flink<span class="w"> </span>run<span class="w"> </span>-c<span class="w"> </span>x.mg.metrics.flink.Main<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-m<span class="w"> </span>localhost:8081<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>metrics-flink-consumer-dist.jar<span class="w"> </span>flink-consumer.conf<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>&gt;<span class="w"> </span>/tmp/flink-submit.log<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">&amp;</span>
+
+<span class="c1"># Check cluster job status</span>
+curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:8081/jobs<span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">&#39;import json,sys; [print(j[&quot;id&quot;],j[&quot;status&quot;]) for j in json.load(sys.stdin)[&quot;jobs&quot;]]&#39;</span>
+
+<span class="c1"># Cancel a job</span>
+/opt/flink-1.18.0/bin/flink<span class="w"> </span>cancel<span class="w"> </span>&lt;job-id&gt;
+</code></pre></div>
+<h3 id="important-notes">Important Notes<a class="headerlink" href="#important-notes" title="Permanent link">&para;</a></h3>
+<ul>
+<li>All tables are auto-created on startup -- no manual DDL needed</li>
+<li>All labels are expanded into explicit typed columns, no JSON data type is used</li>
+<li><code>Double.POSITIVE_INFINITY</code> (from OTLP histogram buckets) is automatically converted to <code>Double.MAX_VALUE</code></li>
+<li>Flink 1.18.0 (last version supporting Java 8)</li>
+<li>Kafka offsets are managed by Flink checkpointing, guaranteeing at-least-once semantics. <code>checkpoint.path</code> is the Flink checkpoint storage directory (single-file offset persistence is no longer used)</li>
+<li>When <code>app_id</code> is empty, it automatically falls back to <code>"unknown"</code></li>
+<li>All objects passed into Flink operators (model classes, config, filter) implement <code>Serializable</code></li>
+<li>Aggregation state is managed via <code>ValueState</code>, supporting checkpoint fault recovery</li>
+</ul>
+<hr />
+<h2 id="database-table-structure">Database Table Structure<a class="headerlink" href="#database-table-structure" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Table Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spark_task_metrics</code></td>
+<td>One row per Task completion event, 12 dimension columns + 23 metric columns</td>
+</tr>
+<tr>
+<td><code>spark_stage_metrics</code></td>
+<td>One row per Stage completion event</td>
+</tr>
+<tr>
+<td><code>spark_job_metrics</code></td>
+<td>One row per Job event</td>
+</tr>
+<tr>
+<td><code>spark_jvm_memory</code></td>
+<td>JVM memory time-series data</td>
+</tr>
+<tr>
+<td><code>spark_jvm_gc</code></td>
+<td>JVM GC time-series data</td>
+</tr>
+<tr>
+<td><code>spark_task_histogram</code></td>
+<td>Task-level histogram bucket distribution</td>
+</tr>
+<tr>
+<td><code>spark_stage_histogram</code></td>
+<td>Stage-level histogram bucket distribution</td>
+</tr>
+<tr>
+<td><code>spark_job_histogram</code></td>
+<td>Job-level histogram bucket distribution</td>
+</tr>
+<tr>
+<td><code>spark_stage_skew</code></td>
+<td>Stage governance metrics (pre-aggregated)</td>
+</tr>
+<tr>
+<td><code>spark_sql_metrics</code></td>
+<td>Spark SQL execution metrics (join/shuffle bytes, etc., includes query_text)</td>
+</tr>
+<tr>
+<td><code>spark_sql_table</code></td>
+<td>Spark SQL table-level IO metrics</td>
+</tr>
+<tr>
+<td><code>hive_query_metrics</code></td>
+<td>Hive query execution metrics (duration/success/IO, includes query_text)</td>
+</tr>
+<tr>
+<td><code>hive_query_table</code></td>
+<td>Hive query table-level IO metrics</td>
+</tr>
+<tr>
+<td><code>mr_job_metrics</code></td>
+<td>MR Collector job-level metrics</td>
+</tr>
+<tr>
+<td><code>mr_task_metrics</code></td>
+<td>MR Agent task-level metrics</td>
+</tr>
+<tr>
+<td><code>unified_metrics</code></td>
+<td>Cross-engine unified wide table, partitioned by engine (SPARK/MR/HIVE) and event_type</td>
+</tr>
+</tbody>
+</table>
+<h3 id="spark_task_metrics">spark_task_metrics<a class="headerlink" href="#spark_task_metrics" title="Permanent link">&para;</a></h3>
+<p><strong>Dimension columns:</strong> <code>timestamp_ms</code>, <code>app_id</code>, <code>app_name</code>, <code>user_name</code>, <code>queue</code>, <code>executor_id</code>, <code>stage_id</code>, <code>task_id</code>, <code>task_success</code>, <code>task_host</code>, <code>task_locality</code>, <code>task_speculative</code></p>
+<p><strong>Metric columns:</strong> <code>duration_ms</code>, <code>io_bytes_read</code>, <code>io_bytes_written</code>, <code>io_records_read</code>, <code>io_records_written</code>, <code>shuffle_bytes_read</code>, <code>shuffle_bytes_written</code>, <code>shuffle_fetch_wait_time_ms</code>, <code>disk_bytes_spilled</code>, <code>memory_bytes_spilled</code>, <code>executor_run_time_ms</code>, <code>executor_cpu_time_ns</code>, <code>deserialize_time_ms</code>, <code>deserialize_cpu_time_ns</code>, <code>result_serialization_time_ms</code>, <code>jvm_gc_time_ms</code>, <code>scheduler_delay_ms</code>, <code>result_size_bytes</code>, <code>peak_execution_memory_bytes</code>, <code>shuffle_local_blocks_fetched</code>, <code>shuffle_records_read</code>, <code>shuffle_remote_bytes_read_to_disk</code>, <code>shuffle_remote_reqs_duration_ms</code></p>
+<h3 id="spark_stage_metrics">spark_stage_metrics<a class="headerlink" href="#spark_stage_metrics" title="Permanent link">&para;</a></h3>
+<p><strong>Dimension columns:</strong> <code>timestamp_ms</code>, <code>app_id</code>, <code>app_name</code>, <code>user_name</code>, <code>queue</code>, <code>executor_id</code>, <code>stage_id</code></p>
+<p><strong>Metric columns:</strong> <code>duration_ms</code>, <code>num_tasks</code>, <code>executor_run_time_ms</code>, <code>executor_cpu_time_ns</code>, <code>jvm_gc_time_ms</code>, <code>peak_execution_memory_bytes</code>, <code>io_bytes_read</code>, <code>io_bytes_written</code></p>
+<h3 id="spark_job_metrics">spark_job_metrics<a class="headerlink" href="#spark_job_metrics" title="Permanent link">&para;</a></h3>
+<p><strong>Dimension columns:</strong> <code>timestamp_ms</code>, <code>app_id</code>, <code>app_name</code>, <code>user_name</code>, <code>queue</code>, <code>job_id</code>, <code>job_success</code></p>
+<p><strong>Metric columns:</strong> <code>duration_ms</code>, <code>num_stages</code></p>
+<h3 id="spark_jvm_memory">spark_jvm_memory<a class="headerlink" href="#spark_jvm_memory" title="Permanent link">&para;</a></h3>
+<p><strong>Dimension columns:</strong> <code>timestamp_ms</code>, <code>app_id</code>, <code>app_name</code>, <code>user_name</code>, <code>queue</code>, <code>executor_id</code></p>
+<p><strong>Metric columns:</strong> <code>heap_used</code>, <code>non_heap_used</code></p>
+<h3 id="spark_jvm_gc">spark_jvm_gc<a class="headerlink" href="#spark_jvm_gc" title="Permanent link">&para;</a></h3>
+<p><strong>Dimension columns:</strong> <code>timestamp_ms</code>, <code>app_id</code>, <code>app_name</code>, <code>user_name</code>, <code>queue</code>, <code>executor_id</code>, <code>gc_name</code></p>
+<p><strong>Metric columns:</strong> <code>gc_count</code>, <code>gc_time_ms</code></p>
+<h3 id="spark_sql_metrics">spark_sql_metrics<a class="headerlink" href="#spark_sql_metrics" title="Permanent link">&para;</a></h3>
+<p><strong>Dimension columns:</strong> <code>timestamp_ms</code>, <code>app_id</code>, <code>execution_id</code>, <code>app_name</code>, <code>user_name</code>, <code>queue</code></p>
+<p><strong>Metric columns:</strong> <code>duration_ms</code>, <code>shuffle_bytes_read</code>, <code>shuffle_bytes_written</code>, <code>join_count</code></p>
+<p><strong>Text column:</strong> <code>query_text</code> (TEXT, SQL query text, truncated to max 4096 characters)</p>
+<h3 id="hive_query_metrics">hive_query_metrics<a class="headerlink" href="#hive_query_metrics" title="Permanent link">&para;</a></h3>
+<p><strong>Dimension columns:</strong> <code>timestamp_ms</code>, <code>app_name</code>, <code>queue</code>, <code>query_id</code>, <code>operation</code>, <code>user_name</code>, <code>success</code>, <code>execution_engine</code></p>
+<p><strong>Metric columns:</strong> <code>duration_ms</code>, <code>success_count</code>, <code>failure_count</code>, <code>input_bytes</code>, <code>output_bytes</code>, <code>input_rows</code>, <code>output_rows</code></p>
+<p><strong>Text column:</strong> <code>query_text</code> (TEXT, Hive SQL query text, truncated to max 4096 characters)</p>
+<h3 id="histogram-bucket-tables">Histogram Bucket Tables<a class="headerlink" href="#histogram-bucket-tables" title="Permanent link">&para;</a></h3>
+<p><code>spark_task_histogram</code>, <code>spark_stage_histogram</code>, <code>spark_job_histogram</code> have dimension columns consistent with their corresponding metrics tables, plus three additional columns: <code>metric_name</code>, <code>bucket_le</code>, <code>bucket_count</code>.</p>
+<h3 id="unified_metrics">unified_metrics<a class="headerlink" href="#unified_metrics" title="Permanent link">&para;</a></h3>
+<p><strong>Unified cross-engine wide table</strong>, consolidating data from all 15 category tables. One row per event, distinguished by <code>engine</code> (SPARK/MR/HIVE) and <code>event_type</code> (TASK/STAGE/JOB/JVM_MEMORY/JVM_GC/SQL_QUERY/SQL_TABLE_IO/HIVE_QUERY/HIVE_TABLE_IO/MR_JOB/MR_TASK).</p>
+<p><strong>Core dimension columns:</strong> <code>timestamp_ms</code>, <code>event_type</code>, <code>engine</code>, <code>status</code>, <code>app_id</code>, <code>app_name</code>, <code>user_name</code>, <code>queue</code></p>
+<p><strong>Normalized metric columns:</strong> <code>duration_ms</code>, <code>bytes_read</code>, <code>bytes_written</code>, <code>shuffle_bytes_read</code>, <code>shuffle_bytes_written</code>, <code>cpu_time_ms</code>, <code>gc_time_ms</code>, <code>bytes_spilled</code></p>
+<p><strong>Engine-specific dimension/metric columns:</strong> Preserves unique fields per engine (e.g., Spark's <code>executor_id</code>/<code>stage_id</code>/<code>task_id</code>, MR's <code>job_id</code>/<code>launched_maps</code>/<code>hdfs_bytes_read</code>, Hive's <code>operation</code>/<code>execution_engine</code>), NULL where not applicable.</p>
+<p><strong>Text column:</strong> <code>query_text</code> (TEXT, SQL query text)</p>
+<p>Full DDL statements can be found in <code>deploy/sql/v5_migration.sql</code>. The <code>query_text</code> column was added by <code>deploy/sql/v6_migration.sql</code>.</p>
+<hr />
+<h2 id="stage-governance-metrics-spark_stage_skew">Stage Governance Metrics (spark_stage_skew)<a class="headerlink" href="#stage-governance-metrics-spark_stage_skew" title="Permanent link">&para;</a></h2>
+<p>The Flink Consumer auto-aggregates one governance row per completed Stage, enabling Grafana to render directly from a single table.</p>
+<h3 id="governance-dimensions">Governance Dimensions<a class="headerlink" href="#governance-dimensions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Calculation Method</th>
+<th>Anomaly Threshold</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Duration skew</td>
+<td><code>duration_skew_ratio</code> = max / avg task duration</td>
+<td>&gt; 2 skewed</td>
+</tr>
+<tr>
+<td>IO skew</td>
+<td><code>io_read_skew_ratio</code>, <code>io_write_skew_ratio</code>, <code>shuffle_read_skew_ratio</code></td>
+<td>&gt; 2 skewed</td>
+</tr>
+<tr>
+<td>Small file detection</td>
+<td><code>avg_output_bytes_per_task</code>, <code>small_output_task_count</code> (&lt; 32MB)</td>
+<td>task count &gt; 5</td>
+</tr>
+<tr>
+<td>CPU efficiency</td>
+<td><code>cpu_efficiency</code> = cpu_time / run_time</td>
+<td>&lt; 0.5 inefficient</td>
+</tr>
+<tr>
+<td>GC overhead</td>
+<td><code>gc_overhead_ratio</code> = gc_time / run_time</td>
+<td>&gt; 0.1 needs tuning</td>
+</tr>
+<tr>
+<td>Shuffle overhead</td>
+<td><code>shuffle_wait_ratio</code> = fetch_wait / run_time</td>
+<td>&gt; 0.1</td>
+</tr>
+<tr>
+<td>Spill ratio</td>
+<td><code>spill_ratio</code> = disk_spilled / bytes_read</td>
+<td>&gt; 0.3</td>
+</tr>
+<tr>
+<td>Deserialization overhead</td>
+<td><code>deserialize_overhead</code> = deserialize_time / run_time</td>
+<td>--</td>
+</tr>
+<tr>
+<td>Scheduler delay</td>
+<td><code>scheduler_delay_ratio</code> = scheduler_delay / total_duration</td>
+<td>--</td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-structure">Table Structure<a class="headerlink" href="#table-structure" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">spark_stage_skew</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="nb">BIGINT</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<span class="w">    </span><span class="n">timestamp_ms</span><span class="w"> </span><span class="nb">BIGINT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="n">app_id</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="n">stage_id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="n">task_count</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+
+<span class="w">    </span><span class="c1">-- Duration</span>
+<span class="w">    </span><span class="n">stage_duration_ms</span><span class="w"> </span><span class="n">DOUBLE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">avg_task_duration_ms</span><span class="w"> </span><span class="n">DOUBLE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">max_task_duration_ms</span><span class="w"> </span><span class="n">DOUBLE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">min_task_duration_ms</span><span class="w"> </span><span class="n">DOUBLE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">duration_skew_ratio</span><span class="w"> </span><span class="n">DOUBLE</span><span class="p">,</span>
+
+<span class="w">    </span><span class="c1">-- IO</span>
+<span class="w">    </span><span class="n">total_bytes_read</span><span class="w"> </span><span class="n">DOUBLE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">total_bytes_written</span><span class="w"> </span><span class="n">DOUBLE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">total_shuffle_bytes_read</span><span class="w"> </span><span class="n">DOUBLE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">total_shuffle_bytes_written</span><span class="w"> </span><span class="n">DOUBLE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">total_records_read</span><span class="w"> </span><span class="n">DOUBLE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">total_records_written</span><span class="w"> </span><span class="n">DOUBLE</span><span class="p">,</span>
+
+<span class="w">    </span><span class="c1">-- IO skew</span>
+<span class="w">    </span><span class="n">io_read_skew_ratio</span><span class="w"> </span><span class="n">DOUBLE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">io_write_skew_ratio</span><span class="w"> </span><span class="n">DOUBLE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">shuffle_read_skew_ratio</span><span class="w"> </span><span class="n">DOUBLE</span><span class="p">,</span>
+
+<span class="w">    </span><span class="c1">-- Small files</span>
+<span class="w">    </span><span class="n">avg_output_bytes_per_task</span><span class="w"> </span><span class="n">DOUBLE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">avg_output_records_per_task</span><span class="w"> </span><span class="n">DOUBLE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">small_output_task_count</span><span class="w"> </span><span class="nb">INT</span><span class="p">,</span>
+
+<span class="w">    </span><span class="c1">-- Resource efficiency</span>
+<span class="w">    </span><span class="n">cpu_efficiency</span><span class="w"> </span><span class="n">DOUBLE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">gc_overhead_ratio</span><span class="w"> </span><span class="n">DOUBLE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">shuffle_wait_ratio</span><span class="w"> </span><span class="n">DOUBLE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">spill_ratio</span><span class="w"> </span><span class="n">DOUBLE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">deserialize_overhead</span><span class="w"> </span><span class="n">DOUBLE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">scheduler_delay_ratio</span><span class="w"> </span><span class="n">DOUBLE</span><span class="p">,</span>
+
+<span class="w">    </span><span class="c1">-- Memory</span>
+<span class="w">    </span><span class="n">max_peak_memory_bytes</span><span class="w"> </span><span class="n">DOUBLE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">total_memory_spilled</span><span class="w"> </span><span class="n">DOUBLE</span><span class="p">,</span>
+
+<span class="w">    </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_app_time</span><span class="w"> </span><span class="p">(</span><span class="n">app_id</span><span class="p">,</span><span class="w"> </span><span class="n">timestamp_ms</span><span class="p">),</span>
+<span class="w">    </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_stage</span><span class="w"> </span><span class="p">(</span><span class="n">app_id</span><span class="p">,</span><span class="w"> </span><span class="n">stage_id</span><span class="p">)</span>
+<span class="p">);</span>
+</code></pre></div>
+<hr />
+<h2 id="grafana-visualization">Grafana Visualization<a class="headerlink" href="#grafana-visualization" title="Permanent link">&para;</a></h2>
+<p>Pre-built dashboard: <code>deploy/grafana/spark-mr-telemetry-dashboard.json</code></p>
+<h3 id="import">Import<a class="headerlink" href="#import" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Grafana -&gt; Dashboards -&gt; Import</li>
+<li>Upload <code>deploy/grafana/spark-mr-telemetry-dashboard.json</code></li>
+<li>Select MySQL data source</li>
+<li>Save</li>
+</ol>
+<h3 id="data-source-configuration">Data Source Configuration<a class="headerlink" href="#data-source-configuration" title="Permanent link">&para;</a></h3>
+<p><strong>MySQL</strong> (default): URL <code>mysql:3306</code>, Database <code>metrics_db</code>, User/Password <code>metrics</code> / <code>metrics</code></p>
+<p><strong>ClickHouse</strong>: URL <code>http://clickhouse:8123</code>, Database <code>metrics_db</code>. Adjust SQL time functions:
+- <code>$__unixEpochFilter(timestamp_ms/1000)</code> -&gt; <code>$__timeFilter_ms(timestamp_ms)</code>
+- <code>$__unixEpochGroup(timestamp_ms/1000, $__interval)</code> -&gt; <code>$__timeInterval_ms(timestamp_ms)</code>
+- <code>FROM_UNIXTIME(timestamp_ms/1000, ...)</code> -&gt; <code>DateTime(timestamp_ms)</code></p>
+<h3 id="dashboard-panels">Dashboard Panels<a class="headerlink" href="#dashboard-panels" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Panel</th>
+<th>Type</th>
+<th>Data Source</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Total Tasks / Stages</td>
+<td>Stat</td>
+<td>spark_task_metrics/spark_stage_metrics</td>
+<td>Total counts</td>
+</tr>
+<tr>
+<td>Skewed Stages</td>
+<td>Stat</td>
+<td>spark_stage_skew</td>
+<td>skew_ratio &gt; 2 (red/yellow/green)</td>
+</tr>
+<tr>
+<td>Avg CPU Efficiency</td>
+<td>Stat</td>
+<td>spark_stage_skew</td>
+<td>&lt; 0.5 red, &gt; 0.7 green</td>
+</tr>
+<tr>
+<td>Task I/O Bytes</td>
+<td>Time Series</td>
+<td>spark_task_metrics</td>
+<td>IO/Shuffle read/write trends</td>
+</tr>
+<tr>
+<td>Task Duration</td>
+<td>Time Series</td>
+<td>spark_task_metrics</td>
+<td>avg/max/min trends</td>
+</tr>
+<tr>
+<td>JVM Memory</td>
+<td>Time Series</td>
+<td>spark_jvm_memory</td>
+<td>Heap/non-heap trends</td>
+</tr>
+<tr>
+<td>JVM GC</td>
+<td>Time Series</td>
+<td>spark_jvm_gc</td>
+<td>GC count and duration</td>
+</tr>
+<tr>
+<td>Stage Duration &amp; Task Count</td>
+<td>Time Series</td>
+<td>spark_stage_metrics</td>
+<td>Stage duration and task count</td>
+</tr>
+<tr>
+<td>Job Overview</td>
+<td>Table</td>
+<td>spark_job_metrics</td>
+<td>Job list</td>
+</tr>
+<tr>
+<td>Data Skew Detection</td>
+<td>Table</td>
+<td>spark_stage_skew</td>
+<td>Skew detection (color thresholds)</td>
+</tr>
+<tr>
+<td>Resource Efficiency</td>
+<td>Table</td>
+<td>spark_stage_skew</td>
+<td>CPU/GC/Shuffle/Spill efficiency</td>
+</tr>
+<tr>
+<td>Task Duration Histogram</td>
+<td>Bar Chart</td>
+<td>spark_task_histogram</td>
+<td>Duration distribution</td>
+</tr>
+<tr>
+<td>Small File Detection</td>
+<td>Table</td>
+<td>spark_stage_skew</td>
+<td>Small file detection</td>
+</tr>
+<tr>
+<td>Task Detail</td>
+<td>Table</td>
+<td>spark_task_metrics</td>
+<td>Latest 200 task details</td>
+</tr>
+</tbody>
+</table>
+<p>Template variable: <code>$app_id</code> (application ID filter, multi-select)</p>
+<h3 id="alert-thresholds">Alert Thresholds<a class="headerlink" href="#alert-thresholds" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Green</th>
+<th>Yellow</th>
+<th>Red</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>duration_skew_ratio</td>
+<td>&lt; 1.5</td>
+<td>1.5 ~ 2</td>
+<td>&gt; 2</td>
+</tr>
+<tr>
+<td>cpu_efficiency</td>
+<td>&gt; 0.7</td>
+<td>0.5 ~ 0.7</td>
+<td>&lt; 0.5</td>
+</tr>
+<tr>
+<td>gc_overhead_ratio</td>
+<td>&lt; 0.05</td>
+<td>0.05 ~ 0.1</td>
+<td>&gt; 0.1</td>
+</tr>
+<tr>
+<td>shuffle_wait_ratio</td>
+<td>&lt; 0.05</td>
+<td>0.05 ~ 0.1</td>
+<td>&gt; 0.1</td>
+</tr>
+<tr>
+<td>spill_ratio</td>
+<td>&lt; 0.1</td>
+<td>0.1 ~ 0.3</td>
+<td>&gt; 0.3</td>
+</tr>
+<tr>
+<td>avg_output_bytes_per_task</td>
+<td>&gt; 32MB</td>
+<td>1MB ~ 32MB</td>
+<td>&lt; 1MB</td>
+</tr>
+<tr>
+<td>small_output_task_count</td>
+<td>0</td>
+<td>1 ~ 5</td>
+<td>&gt; 5</td>
+</tr>
+</tbody>
+</table>
+<h3 id="governance-query-examples-mysql">Governance Query Examples (MySQL)<a class="headerlink" href="#governance-query-examples-mysql" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">-- Data skew</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">app_id</span><span class="p">,</span><span class="w"> </span><span class="n">stage_id</span><span class="p">,</span><span class="w"> </span><span class="n">task_count</span><span class="p">,</span><span class="w"> </span><span class="n">duration_skew_ratio</span><span class="p">,</span>
+<span class="w">       </span><span class="n">max_task_duration_ms</span><span class="p">,</span><span class="w"> </span><span class="n">avg_task_duration_ms</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">spark_stage_skew</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">duration_skew_ratio</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">2</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">timestamp_ms</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span>
+
+<span class="c1">-- Small files</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">app_id</span><span class="p">,</span><span class="w"> </span><span class="n">stage_id</span><span class="p">,</span><span class="w"> </span><span class="n">task_count</span><span class="p">,</span><span class="w"> </span><span class="n">avg_output_bytes_per_task</span><span class="p">,</span>
+<span class="w">       </span><span class="n">small_output_task_count</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">spark_stage_skew</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">avg_output_bytes_per_task</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">33554432</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">timestamp_ms</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span>
+
+<span class="c1">-- Low CPU efficiency</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">app_id</span><span class="p">,</span><span class="w"> </span><span class="n">stage_id</span><span class="p">,</span><span class="w"> </span><span class="n">task_count</span><span class="p">,</span><span class="w"> </span><span class="n">cpu_efficiency</span><span class="p">,</span>
+<span class="w">       </span><span class="n">avg_task_duration_ms</span><span class="p">,</span><span class="w"> </span><span class="n">total_bytes_read</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">spark_stage_skew</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">cpu_efficiency</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">.</span><span class="mi">5</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">timestamp_ms</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span>
+
+<span class="c1">-- High GC overhead</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">app_id</span><span class="p">,</span><span class="w"> </span><span class="n">stage_id</span><span class="p">,</span><span class="w"> </span><span class="n">gc_overhead_ratio</span><span class="p">,</span><span class="w"> </span><span class="n">avg_task_duration_ms</span><span class="p">,</span><span class="w"> </span><span class="n">task_count</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">spark_stage_skew</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">gc_overhead_ratio</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">.</span><span class="mi">1</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">timestamp_ms</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span>
+
+<span class="c1">-- High shuffle overhead</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">app_id</span><span class="p">,</span><span class="w"> </span><span class="n">stage_id</span><span class="p">,</span><span class="w"> </span><span class="n">shuffle_wait_ratio</span><span class="p">,</span>
+<span class="w">       </span><span class="n">total_shuffle_bytes_read</span><span class="p">,</span><span class="w"> </span><span class="n">total_shuffle_bytes_written</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">spark_stage_skew</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">shuffle_wait_ratio</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">.</span><span class="mi">1</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">timestamp_ms</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span>
+
+<span class="c1">-- Application Stage overview</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">app_id</span><span class="p">,</span><span class="w"> </span><span class="n">stage_id</span><span class="p">,</span><span class="w"> </span><span class="n">task_count</span><span class="p">,</span><span class="w"> </span><span class="n">stage_duration_ms</span><span class="p">,</span><span class="w"> </span><span class="n">avg_task_duration_ms</span><span class="p">,</span>
+<span class="w">       </span><span class="n">duration_skew_ratio</span><span class="p">,</span><span class="w"> </span><span class="n">cpu_efficiency</span><span class="p">,</span><span class="w"> </span><span class="n">gc_overhead_ratio</span><span class="p">,</span>
+<span class="w">       </span><span class="n">total_bytes_written</span><span class="p">,</span><span class="w"> </span><span class="n">avg_output_bytes_per_task</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">spark_stage_skew</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">app_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;$app_id&#39;</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">stage_id</span><span class="p">;</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.suggest"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

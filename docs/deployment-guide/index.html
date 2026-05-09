@@ -1,0 +1,1854 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Transparent Big Data Observability — Spark / MR / Hive Telemetry Collection" name="description"/>
+<link href="../quickstart/" rel="prev"/>
+<link href="../infrastructure/" rel="next"/>
+<link href="../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.6" name="generator"/>
+<title>Full Deployment - Hadoop Telemetry Stack</title>
+<link href="../assets/stylesheets/main.484c7ddc.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#spark-telemetry-listener-deployment-guide">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Hadoop Telemetry Stack" class="md-header__button md-logo" data-md-component="logo" href=".." title="Hadoop Telemetry Stack">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Hadoop Telemetry Stack
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Full Deployment
+            
+          </span>
+</div>
+</div>
+</div>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/xmg333/hadoop-telemetry-stack" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+</div>
+<div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Hadoop Telemetry Stack" class="md-nav__button md-logo" data-md-component="logo" href=".." title="Hadoop Telemetry Stack">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    Hadoop Telemetry Stack
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/xmg333/hadoop-telemetry-stack" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+</div>
+<div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="..">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../quickstart/">
+<span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+<span class="md-ellipsis">
+    
+  
+    Deployment Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Deployment Guide
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    Full Deployment
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    Full Deployment
+  
+
+    
+  </span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#product-overview">
+<span class="md-ellipsis">
+      
+        Product Overview
+      
+    </span>
+</a>
+<nav aria-label="Product Overview" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#core-components">
+<span class="md-ellipsis">
+      
+        Core Components
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#supported-spark-versions">
+<span class="md-ellipsis">
+      
+        Supported Spark Versions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#system-architecture">
+<span class="md-ellipsis">
+      
+        System Architecture
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#build">
+<span class="md-ellipsis">
+      
+        Build
+      
+    </span>
+</a>
+<nav aria-label="Build" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prerequisites">
+<span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#build-commands">
+<span class="md-ellipsis">
+      
+        Build Commands
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#build-artifacts">
+<span class="md-ellipsis">
+      
+        Build Artifacts
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#omnipackage-build-verification">
+<span class="md-ellipsis">
+      
+        Omnipackage Build Verification
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#one-click-deployment-scripts">
+<span class="md-ellipsis">
+      
+        One-Click Deployment Scripts
+      
+    </span>
+</a>
+<nav aria-label="One-Click Deployment Scripts" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#omnipackage-installation-script">
+<span class="md-ellipsis">
+      
+        Omnipackage Installation Script
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#grafana-dashboard-deployment-script">
+<span class="md-ellipsis">
+      
+        Grafana Dashboard Deployment Script
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#otel-collector-configuration">
+<span class="md-ellipsis">
+      
+        OTel Collector Configuration
+      
+    </span>
+</a>
+<nav aria-label="OTel Collector Configuration" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#minimal-configuration">
+<span class="md-ellipsis">
+      
+        Minimal Configuration
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#running">
+<span class="md-ellipsis">
+      
+        Running
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#common-issues-and-troubleshooting">
+<span class="md-ellipsis">
+      
+        Common Issues and Troubleshooting
+      
+    </span>
+</a>
+<nav aria-label="Common Issues and Troubleshooting" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#q1-spark-plugin-not-working-no-metrics-output">
+<span class="md-ellipsis">
+      
+        Q1: Spark plugin not working, no metrics output
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#q2-short-running-job-metrics-missing">
+<span class="md-ellipsis">
+      
+        Q2: Short-running job metrics missing
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#q3-mr-collector-connection-timeout-to-history-server">
+<span class="md-ellipsis">
+      
+        Q3: MR Collector connection timeout to History Server
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#q4-otel-collector-fails-to-start">
+<span class="md-ellipsis">
+      
+        Q4: OTel Collector fails to start
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#q5-no-metrics-data-visible-in-kafka">
+<span class="md-ellipsis">
+      
+        Q5: No metrics data visible in Kafka
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#q6-omnipackage-version-detection-error">
+<span class="md-ellipsis">
+      
+        Q6: Omnipackage version detection error
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#q7-omnipackage-build-fails-adapters-relocated-not-found">
+<span class="md-ellipsis">
+      
+        Q7: Omnipackage build fails (adapters-relocated not found)
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#appendix-version-compatibility-matrix">
+<span class="md-ellipsis">
+      
+        Appendix: Version Compatibility Matrix
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#appendix-port-reference">
+<span class="md-ellipsis">
+      
+        Appendix: Port Reference
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../infrastructure/">
+<span class="md-ellipsis">
+    
+  
+    Infrastructure
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../troubleshooting/">
+<span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+<span class="md-ellipsis">
+    
+  
+    Component Reference
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Component Reference
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../spark-plugin/">
+<span class="md-ellipsis">
+    
+  
+    Spark Plugin
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../mr-telemetry/">
+<span class="md-ellipsis">
+    
+  
+    MR Collector/Agent
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../hive-hook/">
+<span class="md-ellipsis">
+    
+  
+    Hive Hook
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flink-consumer/">
+<span class="md-ellipsis">
+    
+  
+    Flink Consumer
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../diagnostic/">
+<span class="md-ellipsis">
+    
+  
+    Diagnostic Tool
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../architecture/">
+<span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../configuration-reference/">
+<span class="md-ellipsis">
+    
+  
+    Configuration Reference
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+<span class="md-ellipsis">
+    
+  
+    Grafana Dashboards
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Grafana Dashboards
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-overview/">
+<span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7_2" id="__nav_7_2_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Engine Views
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_2_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_7_2">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Engine Views
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-spark/">
+<span class="md-ellipsis">
+    
+  
+    Spark
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-mr/">
+<span class="md-ellipsis">
+    
+  
+    MapReduce
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-hive-mr/">
+<span class="md-ellipsis">
+    
+  
+    Hive on MR
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-hive-spark/">
+<span class="md-ellipsis">
+    
+  
+    Hive on Spark
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-spark-mr-hive/">
+<span class="md-ellipsis">
+    
+  
+    All Engines
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7_3" id="__nav_7_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Business Analysis
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_7_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Business Analysis
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-cost-attribution/">
+<span class="md-ellipsis">
+    
+  
+    Cost Attribution
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-performance-analysis/">
+<span class="md-ellipsis">
+    
+  
+    Performance Analysis
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-io-analysis/">
+<span class="md-ellipsis">
+    
+  
+    IO Analysis
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-reliability/">
+<span class="md-ellipsis">
+    
+  
+    Reliability
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-hive-analysis/">
+<span class="md-ellipsis">
+    
+  
+    Hive Analysis
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-capacity/">
+<span class="md-ellipsis">
+    
+  
+    Capacity Planning
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../grafana-efficiency/">
+<span class="md-ellipsis">
+    
+  
+    Efficiency Scoring
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../benchmarks/">
+<span class="md-ellipsis">
+    
+  
+    Benchmarks
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release/">
+<span class="md-ellipsis">
+    
+  
+    Release Guide
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../zh_cn/">
+<span class="md-ellipsis">
+    
+  
+    中文文档
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#product-overview">
+<span class="md-ellipsis">
+      
+        Product Overview
+      
+    </span>
+</a>
+<nav aria-label="Product Overview" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#core-components">
+<span class="md-ellipsis">
+      
+        Core Components
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#supported-spark-versions">
+<span class="md-ellipsis">
+      
+        Supported Spark Versions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#system-architecture">
+<span class="md-ellipsis">
+      
+        System Architecture
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#build">
+<span class="md-ellipsis">
+      
+        Build
+      
+    </span>
+</a>
+<nav aria-label="Build" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prerequisites">
+<span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#build-commands">
+<span class="md-ellipsis">
+      
+        Build Commands
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#build-artifacts">
+<span class="md-ellipsis">
+      
+        Build Artifacts
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#omnipackage-build-verification">
+<span class="md-ellipsis">
+      
+        Omnipackage Build Verification
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#one-click-deployment-scripts">
+<span class="md-ellipsis">
+      
+        One-Click Deployment Scripts
+      
+    </span>
+</a>
+<nav aria-label="One-Click Deployment Scripts" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#omnipackage-installation-script">
+<span class="md-ellipsis">
+      
+        Omnipackage Installation Script
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#grafana-dashboard-deployment-script">
+<span class="md-ellipsis">
+      
+        Grafana Dashboard Deployment Script
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#otel-collector-configuration">
+<span class="md-ellipsis">
+      
+        OTel Collector Configuration
+      
+    </span>
+</a>
+<nav aria-label="OTel Collector Configuration" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#minimal-configuration">
+<span class="md-ellipsis">
+      
+        Minimal Configuration
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#running">
+<span class="md-ellipsis">
+      
+        Running
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#common-issues-and-troubleshooting">
+<span class="md-ellipsis">
+      
+        Common Issues and Troubleshooting
+      
+    </span>
+</a>
+<nav aria-label="Common Issues and Troubleshooting" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#q1-spark-plugin-not-working-no-metrics-output">
+<span class="md-ellipsis">
+      
+        Q1: Spark plugin not working, no metrics output
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#q2-short-running-job-metrics-missing">
+<span class="md-ellipsis">
+      
+        Q2: Short-running job metrics missing
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#q3-mr-collector-connection-timeout-to-history-server">
+<span class="md-ellipsis">
+      
+        Q3: MR Collector connection timeout to History Server
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#q4-otel-collector-fails-to-start">
+<span class="md-ellipsis">
+      
+        Q4: OTel Collector fails to start
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#q5-no-metrics-data-visible-in-kafka">
+<span class="md-ellipsis">
+      
+        Q5: No metrics data visible in Kafka
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#q6-omnipackage-version-detection-error">
+<span class="md-ellipsis">
+      
+        Q6: Omnipackage version detection error
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#q7-omnipackage-build-fails-adapters-relocated-not-found">
+<span class="md-ellipsis">
+      
+        Q7: Omnipackage build fails (adapters-relocated not found)
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#appendix-version-compatibility-matrix">
+<span class="md-ellipsis">
+      
+        Appendix: Version Compatibility Matrix
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#appendix-port-reference">
+<span class="md-ellipsis">
+      
+        Appendix: Port Reference
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="spark-telemetry-listener-deployment-guide">Spark Telemetry Listener — Deployment Guide<a class="headerlink" href="#spark-telemetry-listener-deployment-guide" title="Permanent link">¶</a></h1>
+<h2 id="product-overview">Product Overview<a class="headerlink" href="#product-overview" title="Permanent link">¶</a></h2>
+<p>Spark Telemetry Listener is a transparent Spark / MapReduce observability solution that exports IO, CPU, GC, and other metrics from big data tasks to an OTel Collector via the OpenTelemetry protocol, persists them to MySQL or ClickHouse through Kafka, and ultimately visualizes them in Grafana.</p>
+<h3 id="core-components">Core Components<a class="headerlink" href="#core-components" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Type</th>
+<th>Description</th>
+<th>Deployment Docs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Spark Telemetry Plugin</strong></td>
+<td>Spark Plugin</td>
+<td>Captures Spark task/stage IO metrics and JVM system metrics</td>
+<td><a href="../spark-plugin/">Spark Plugin</a></td>
+</tr>
+<tr>
+<td><strong>MR Telemetry Collector</strong></td>
+<td>Standalone Java app</td>
+<td>Polls Hadoop History Server REST API for MR job metrics</td>
+<td><a href="../mr-telemetry/">MR Telemetry</a></td>
+</tr>
+<tr>
+<td><strong>MR Telemetry Agent</strong></td>
+<td>Java Agent</td>
+<td>Byte-buddy instrumentation for real-time MR task-level metrics</td>
+<td><a href="../mr-telemetry/">MR Telemetry</a></td>
+</tr>
+<tr>
+<td><strong>Hive Telemetry Hook</strong></td>
+<td>Hive Hook</td>
+<td>Captures HiveServer2 query metrics (supports MR and Spark engines)</td>
+<td><a href="../hive-hook/">Hive Hook</a></td>
+</tr>
+<tr>
+<td><strong>Flink Metrics Consumer</strong></td>
+<td>Flink Job</td>
+<td>Consumes OTLP metrics from Kafka and writes to MySQL / ClickHouse</td>
+<td><a href="../flink-consumer/">Flink Consumer</a></td>
+</tr>
+<tr>
+<td><strong>Diagnostic Tool</strong></td>
+<td>Interactive CLI</td>
+<td>Checks backend component (OTel/Kafka/MySQL/Grafana) health and application configuration correctness</td>
+<td><a href="../diagnostic/">Diagnostic Tool</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="supported-spark-versions">Supported Spark Versions<a class="headerlink" href="#supported-spark-versions" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Spark Version</th>
+<th>Scala Version</th>
+<th>Maven Profile</th>
+<th>Plugin Loading Mechanism</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spark 2.4.x</td>
+<td>2.11</td>
+<td><code>spark-2</code></td>
+<td><code>spark.extraListeners</code></td>
+</tr>
+<tr>
+<td>Spark 3.2.x</td>
+<td>2.12</td>
+<td><code>spark-32</code></td>
+<td><code>SparkPlugin</code> API</td>
+</tr>
+<tr>
+<td>Spark 3.5.x</td>
+<td>2.12</td>
+<td><code>spark-3</code> (default)</td>
+<td><code>SparkPlugin</code> API</td>
+</tr>
+<tr>
+<td>Spark 4.0.x</td>
+<td>2.13</td>
+<td><code>spark-4</code></td>
+<td><code>SparkPlugin</code> API</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="system-architecture">System Architecture<a class="headerlink" href="#system-architecture" title="Permanent link">¶</a></h2>
+<pre class="mermaid"><code>graph TD
+    subgraph Data Collection Layer
+        SP["Spark Plugin&lt;br/&gt;(Task/Stage/JVM)"]
+        MR["MR Collector&lt;br/&gt;(History Server)"]
+        MA["MR Agent&lt;br/&gt;(Bytecode Instrumentation)"]
+        HH["Hive Hook&lt;br/&gt;(ExecuteWithHookContext)"]
+    end
+
+    SP -- OTLP gRPC --&gt; OTel
+    MR -- OTLP gRPC --&gt; OTel
+    MA -- OTLP gRPC --&gt; OTel
+    HH -- OTLP gRPC --&gt; OTel
+
+    OTel["OTel Collector&lt;br/&gt;(Receive OTLP -&gt; Debug Output + Kafka Export)"]
+    Flink["Flink Metrics Consumer&lt;br/&gt;(Kafka -&gt; Batch Write to MySQL / ClickHouse)"]
+    DB[("MySQL / ClickHouse + Grafana&lt;br/&gt;(Time-Series Storage + Visualization Dashboards)")]
+
+    OTel -- "Kafka (OTLP Protobuf)" --&gt; Flink
+    Flink --&gt; DB</code></pre>
+<hr/>
+<h2 id="build">Build<a class="headerlink" href="#build" title="Permanent link">¶</a></h2>
+<h3 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">¶</a></h3>
+<ul>
+<li>JDK 8 (Spark 2/3) or JDK 17+ (Spark 4)</li>
+<li>Maven 3.6+</li>
+</ul>
+<h3 id="build-commands">Build Commands<a class="headerlink" href="#build-commands" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Build Spark 3.x version (default)</span>
+mvn<span class="w"> </span>clean<span class="w"> </span>package<span class="w"> </span>-DskipTests
+
+<span class="c1"># Build Spark 2.x version</span>
+mvn<span class="w"> </span>clean<span class="w"> </span>package<span class="w"> </span>-Pspark-2<span class="w"> </span>-DskipTests
+
+<span class="c1"># Build Spark 4.x version (requires JDK 17+)</span>
+mvn<span class="w"> </span>clean<span class="w"> </span>package<span class="w"> </span>-Pspark-4<span class="w"> </span>-DskipTests
+
+<span class="c1"># Build Omnipackage (unified JAR: Spark 2/3/4 + MR Collector + MR Agent + Hive Hook)</span>
+chmod<span class="w"> </span>+x<span class="w"> </span>build-omni.sh<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>./build-omni.sh
+
+<span class="c1"># Build Flink Consumer</span>
+mvn<span class="w"> </span>clean<span class="w"> </span>package<span class="w"> </span>-pl<span class="w"> </span>flink/metrics-flink-consumer,flink/metrics-flink-consumer-dist<span class="w"> </span>-am<span class="w"> </span>-DskipTests
+
+<span class="c1"># Build Diagnostic Tool</span>
+mvn<span class="w"> </span>clean<span class="w"> </span>package<span class="w"> </span>-pl<span class="w"> </span>diagnostic/diagnostic-core<span class="w"> </span>-am<span class="w"> </span>-DskipTests
+</code></pre></div>
+<h3 id="build-artifacts">Build Artifacts<a class="headerlink" href="#build-artifacts" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Artifact</th>
+<th>Path</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spark 2 Plugin</td>
+<td><code>spark/spark-telemetry-dist-spark2/target/*.jar</code></td>
+<td>Self-contained Shaded JAR</td>
+</tr>
+<tr>
+<td>Spark 3 Plugin</td>
+<td><code>spark/spark-telemetry-dist-spark3/target/*.jar</code></td>
+<td>Self-contained Shaded JAR</td>
+</tr>
+<tr>
+<td>Spark 3.2 Plugin</td>
+<td><code>spark/spark-telemetry-dist-spark32/target/*.jar</code></td>
+<td>Spark 3.2.x specific adapter</td>
+</tr>
+<tr>
+<td>Spark 4 Plugin</td>
+<td><code>spark/spark-telemetry-dist-spark4/target/*.jar</code></td>
+<td>Self-contained Shaded JAR</td>
+</tr>
+<tr>
+<td><strong>Omnipackage</strong></td>
+<td><code>spark/spark-telemetry-dist-omni/target/*.jar</code></td>
+<td><strong>Unified JAR (Spark 2/3/4 + MR Collector + MR Agent + Hive Hook)</strong></td>
+</tr>
+<tr>
+<td>MR Collector</td>
+<td><code>mapreduce-collector/mr-telemetry-dist/target/*.jar</code></td>
+<td>Self-contained Shaded JAR</td>
+</tr>
+<tr>
+<td>MR Agent</td>
+<td><code>mapreduce-agent/mr-telemetry-agent-dist/target/*.jar</code></td>
+<td>Java Agent JAR</td>
+</tr>
+<tr>
+<td>Flink Consumer</td>
+<td><code>flink/metrics-flink-consumer-dist/target/*.jar</code></td>
+<td>Self-contained Shaded JAR</td>
+</tr>
+<tr>
+<td>Diagnostic Tool</td>
+<td><code>diagnostic/diagnostic-core/target/*.jar</code></td>
+<td>Interactive diagnostic tool (JLine CLI)</td>
+</tr>
+</tbody>
+</table>
+<p>All distribution JARs are built using <code>maven-shade-plugin</code>; OTel, gRPC, Protobuf, and other dependencies are relocated to the <code>x.mg.metrics.shaded.*</code> namespace to avoid conflicts with the host environment.</p>
+<h3 id="omnipackage-build-verification">Omnipackage Build Verification<a class="headerlink" href="#omnipackage-build-verification" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Check the artifact</span>
+ls<span class="w"> </span>-lh<span class="w"> </span>spark/spark-telemetry-dist-omni/target/spark-telemetry-dist-omni-*.jar
+
+<span class="c1"># Verify relocated adapters</span>
+jar<span class="w"> </span>tf<span class="w"> </span>spark/spark-telemetry-dist-omni/target/*.jar<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">"adapter/internal"</span>
+
+<span class="c1"># Verify no unshaded OTel classes</span>
+jar<span class="w"> </span>tf<span class="w"> </span>spark/spark-telemetry-dist-omni/target/*.jar<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">"^io/opentelemetry/"</span>
+<span class="c1"># Should be empty</span>
+</code></pre></div>
+<hr/>
+<h2 id="one-click-deployment-scripts">One-Click Deployment Scripts<a class="headerlink" href="#one-click-deployment-scripts" title="Permanent link">¶</a></h2>
+<p>After building, use the deployment scripts to install the Omnipackage into the Spark / Hive / MR environment and import Grafana dashboards into your Grafana instance.</p>
+<h3 id="omnipackage-installation-script">Omnipackage Installation Script<a class="headerlink" href="#omnipackage-installation-script" title="Permanent link">¶</a></h3>
+<p><code>deploy/install-omni.sh</code> copies the Omnipackage JAR into each component's classpath directory and generates the corresponding configuration files. It supports repeated runs and automatically replaces old JAR versions.</p>
+<p><strong>Installation Paths:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>JAR Installation Path</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spark</td>
+<td><code>$SPARK_HOME/jars/spark-telemetry-omni.jar</code></td>
+</tr>
+<tr>
+<td>Hive</td>
+<td><code>$HIVE_HOME/lib/spark-telemetry-omni.jar</code></td>
+</tr>
+<tr>
+<td>MR Collector</td>
+<td><code>$HADOOP_HOME/share/hadoop/mapreduce-telemetry/spark-telemetry-omni.jar</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Basic install (specify component directories and OTel Collector address)</span>
+./deploy/install-omni.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--spark-home<span class="o">=</span>/opt/spark<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--hive-home<span class="o">=</span>/opt/hive<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--hadoop-home<span class="o">=</span>/opt/hadoop<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--otel-endpoint<span class="o">=</span>http://otel-collector:4317<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-y
+
+<span class="c1"># Install only Spark and Hive, skip MR Collector</span>
+./deploy/install-omni.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--spark-home<span class="o">=</span>/opt/spark<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--hive-home<span class="o">=</span>/opt/hive<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--skip-mr<span class="w"> </span>-y
+
+<span class="c1"># Spark 2.x environment (uses extraListeners instead of SparkPlugin API)</span>
+./deploy/install-omni.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--spark2<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--spark-home<span class="o">=</span>/opt/spark-2.4<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--hadoop-home<span class="o">=</span>/opt/hadoop<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--otel-endpoint<span class="o">=</span>http://otel-collector:4317<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-y
+
+<span class="c1"># Dry-run mode (shows what will be done without executing)</span>
+./deploy/install-omni.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--dry-run<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--spark-home<span class="o">=</span>/opt/spark<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--hive-home<span class="o">=</span>/opt/hive<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--hadoop-home<span class="o">=</span>/opt/hadoop
+
+<span class="c1"># Backup old JAR before replacing</span>
+./deploy/install-omni.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--backup<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--spark-home<span class="o">=</span>/opt/spark<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--hive-home<span class="o">=</span>/opt/hive<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-y
+</code></pre></div>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--spark-home</code></td>
+<td><code>$SPARK_HOME</code></td>
+<td>Spark installation directory</td>
+</tr>
+<tr>
+<td><code>--hadoop-home</code></td>
+<td><code>$HADOOP_HOME</code></td>
+<td>Hadoop installation directory</td>
+</tr>
+<tr>
+<td><code>--hive-home</code></td>
+<td><code>$HIVE_HOME</code></td>
+<td>Hive installation directory</td>
+</tr>
+<tr>
+<td><code>--otel-endpoint</code></td>
+<td><code>http://localhost:4317</code></td>
+<td>OTel Collector gRPC endpoint</td>
+</tr>
+<tr>
+<td><code>--spark-service</code></td>
+<td><code>spark-application</code></td>
+<td>Spark OTel service name</td>
+</tr>
+<tr>
+<td><code>--hive-service</code></td>
+<td><code>hive-server2</code></td>
+<td>Hive OTel service name</td>
+</tr>
+<tr>
+<td><code>--mr-service</code></td>
+<td><code>mr-telemetry-collector</code></td>
+<td>MR Collector OTel service name</td>
+</tr>
+<tr>
+<td><code>--mr-history-url</code></td>
+<td><code>http://localhost:19888</code></td>
+<td>MR History Server URL</td>
+</tr>
+<tr>
+<td><code>--config-dir</code></td>
+<td><code>./telemetry-configs</code></td>
+<td>Output directory for generated config files</td>
+</tr>
+<tr>
+<td><code>--skip-spark</code></td>
+<td>-</td>
+<td>Skip Spark installation</td>
+</tr>
+<tr>
+<td><code>--skip-mr</code></td>
+<td>-</td>
+<td>Skip MR Collector installation</td>
+</tr>
+<tr>
+<td><code>--skip-hive</code></td>
+<td>-</td>
+<td>Skip Hive installation</td>
+</tr>
+<tr>
+<td><code>--spark2</code></td>
+<td>-</td>
+<td>Use Spark 2.x configuration (extraListeners)</td>
+</tr>
+<tr>
+<td><code>--backup</code></td>
+<td>-</td>
+<td>Backup old JAR before replacing</td>
+</tr>
+<tr>
+<td><code>--dry-run</code></td>
+<td>-</td>
+<td>Preview only, no execution</td>
+</tr>
+<tr>
+<td><code>-y</code> / <code>--yes</code></td>
+<td>-</td>
+<td>Skip confirmation prompts</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generated Configuration Files:</strong></p>
+<p>The script generates the following files in the directory specified by <code>--config-dir</code>:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spark-telemetry.conf</code></td>
+<td>Spark Plugin HOCON configuration</td>
+</tr>
+<tr>
+<td><code>spark-telemetry.conf.snippet</code></td>
+<td>Config snippet to add to <code>spark-defaults.conf</code></td>
+</tr>
+<tr>
+<td><code>hive-telemetry.conf</code></td>
+<td>Hive Hook HOCON configuration</td>
+</tr>
+<tr>
+<td><code>hive-telemetry-site.xml.snippet</code></td>
+<td>Config snippet to add to <code>hive-site.xml</code></td>
+</tr>
+<tr>
+<td><code>mr-collector.conf</code></td>
+<td>MR Collector HOCON configuration</td>
+</tr>
+<tr>
+<td><code>start-mr-collector.sh</code></td>
+<td>MR Collector startup script</td>
+</tr>
+<tr>
+<td><code>mr-telemetry-collector.service</code></td>
+<td>systemd service file (optional)</td>
+</tr>
+<tr>
+<td><code>INSTALL_SUMMARY.txt</code></td>
+<td>Installation summary</td>
+</tr>
+</tbody>
+</table>
+<p>After installation, follow the prompts to add the configuration snippets to the corresponding configuration files and restart services.</p>
+<h3 id="grafana-dashboard-deployment-script">Grafana Dashboard Deployment Script<a class="headerlink" href="#grafana-dashboard-deployment-script" title="Permanent link">¶</a></h3>
+<p><code>deploy/deploy-grafana.sh</code> bulk-imports all dashboard JSON files from <code>deploy/grafana/</code> into a Grafana instance using username/password authentication. It supports repeated runs and automatically overwrites existing dashboards.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Deploy all dashboards to Grafana</span>
+./deploy/deploy-grafana.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--grafana-url<span class="o">=</span>http://grafana:3000<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--user<span class="o">=</span>admin<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--password<span class="o">=</span>admin
+
+<span class="c1"># Specify target folder name</span>
+./deploy/deploy-grafana.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--grafana-url<span class="o">=</span>http://grafana:3000<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--user<span class="o">=</span>admin<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--password<span class="o">=</span>secret<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--folder<span class="o">=</span>Production
+
+<span class="c1"># Dry-run mode (no actual upload)</span>
+./deploy/deploy-grafana.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--grafana-url<span class="o">=</span>http://grafana:3000<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--user<span class="o">=</span>admin<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--password<span class="o">=</span>admin<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--dry-run
+</code></pre></div>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--grafana-url</code></td>
+<td>(required)</td>
+<td>Grafana base URL</td>
+</tr>
+<tr>
+<td><code>--user</code></td>
+<td>(required)</td>
+<td>Grafana admin username</td>
+</tr>
+<tr>
+<td><code>--password</code></td>
+<td>(required)</td>
+<td>Grafana admin password</td>
+</tr>
+<tr>
+<td><code>--folder</code></td>
+<td><code>Telemetry</code></td>
+<td>Target folder name in Grafana</td>
+</tr>
+<tr>
+<td><code>--dashboard-dir</code></td>
+<td><code>deploy/grafana</code></td>
+<td>Dashboard JSON file directory</td>
+</tr>
+<tr>
+<td><code>--dry-run</code></td>
+<td>-</td>
+<td>Preview only, no upload</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Prerequisites:</strong> <code>curl</code>, <code>python3</code></p>
+<p>The script automatically creates the target folder in Grafana if it does not exist, then uploads each <code>.json</code> file from <code>deploy/grafana/</code> one by one. Each run overwrites existing dashboards, making it suitable for CI/CD integration.</p>
+<hr/>
+<h2 id="otel-collector-configuration">OTel Collector Configuration<a class="headerlink" href="#otel-collector-configuration" title="Permanent link">¶</a></h2>
+<h3 id="minimal-configuration">Minimal Configuration<a class="headerlink" href="#minimal-configuration" title="Permanent link">¶</a></h3>
+<p>Create <code>config.yaml</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">extensions</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">health_check</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0.0.0:13133</span>
+
+<span class="nt">receivers</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">otlp</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">protocols</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">grpc</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0.0.0:4317</span>
+<span class="w">      </span><span class="nt">http</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0.0.0:4318</span>
+
+<span class="nt">exporters</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">verbosity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">detailed</span>
+<span class="w">  </span><span class="nt">kafka</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">topic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">telemetry-metrics</span>
+<span class="w">    </span><span class="nt">encoding</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">otlp_proto</span>
+<span class="w">    </span><span class="nt">brokers</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kafka:9092</span>
+<span class="w">    </span><span class="nt">producer</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">compression</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">snappy</span>
+<span class="w">      </span><span class="nt">max_message_bytes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000000</span>
+
+<span class="nt">service</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">extensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">health_check</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">pipelines</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">metrics</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">receivers</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">otlp</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">exporters</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">debug</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">kafka</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<h3 id="running">Running<a class="headerlink" href="#running" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>otel-collector<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/config.yaml:/etc/otelcol-contrib/config.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span><span class="m">4317</span>:4317<span class="w"> </span>-p<span class="w"> </span><span class="m">4318</span>:4318<span class="w"> </span>-p<span class="w"> </span><span class="m">13133</span>:13133<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>otel/opentelemetry-collector-contrib:0.96.0<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--config<span class="o">=</span>/etc/otelcol-contrib/config.yaml
+</code></pre></div>
+<blockquote>
+<p><strong>Important</strong>: You must use the <code>otel/opentelemetry-collector-contrib</code> image (not the core image), as the core image does not include the Kafka exporter. The configuration must include the <code>health_check</code> extension, otherwise K8s deployments with probes will enter CrashLoopBackOff.</p>
+</blockquote>
+<hr/>
+<h2 id="common-issues-and-troubleshooting">Common Issues and Troubleshooting<a class="headerlink" href="#common-issues-and-troubleshooting" title="Permanent link">¶</a></h2>
+<h3 id="q1-spark-plugin-not-working-no-metrics-output">Q1: Spark plugin not working, no metrics output<a class="headerlink" href="#q1-spark-plugin-not-working-no-metrics-output" title="Permanent link">¶</a></h3>
+<ol>
+<li>Verify the JAR path is correct and accessible</li>
+<li>Check the <code>spark.plugins</code> (Spark 3/4) or <code>spark.extraListeners</code> (Spark 2) configuration</li>
+<li>Check Driver/Executor logs for <code>TelemetryLifecycle initialized</code></li>
+<li>Verify the OTel Collector address is reachable</li>
+<li>Check that config keys include the <code>.otel.</code> segment (common mistake)</li>
+</ol>
+<h3 id="q2-short-running-job-metrics-missing">Q2: Short-running job metrics missing<a class="headerlink" href="#q2-short-running-job-metrics-missing" title="Permanent link">¶</a></h3>
+<p>The plugin triggers <code>flushAsync()</code> non-blocking flush automatically in <code>onJobEnd</code> and calls <code>forceFlush()</code> synchronously on shutdown. If data is still missing, reduce the export interval: <code>spark.telemetry.otel.export.interval.ms=5000</code>.</p>
+<h3 id="q3-mr-collector-connection-timeout-to-history-server">Q3: MR Collector connection timeout to History Server<a class="headerlink" href="#q3-mr-collector-connection-timeout-to-history-server" title="Permanent link">¶</a></h3>
+<ol>
+<li>Verify the URL and port (History Server port is 19888 for both Hadoop 2.x and 3.x)</li>
+<li>Increase timeouts: <code>connect.timeout.secs</code> / <code>read.timeout.secs</code></li>
+</ol>
+<h3 id="q4-otel-collector-fails-to-start">Q4: OTel Collector fails to start<a class="headerlink" href="#q4-otel-collector-fails-to-start" title="Permanent link">¶</a></h3>
+<ol>
+<li>Use <code>otel/opentelemetry-collector-contrib</code> (not the core image)</li>
+<li>The configuration must include the <code>health_check</code> extension</li>
+<li>Specify the config file via the <code>--config</code> parameter</li>
+</ol>
+<h3 id="q5-no-metrics-data-visible-in-kafka">Q5: No metrics data visible in Kafka<a class="headerlink" href="#q5-no-metrics-data-visible-in-kafka" title="Permanent link">¶</a></h3>
+<ol>
+<li>Check OTel Collector logs: <code>kubectl logs -l app=otel-collector</code></li>
+<li>Verify the Kafka exporter configuration (broker addresses, topic)</li>
+<li>Use <code>kafka-dump-log.sh --files &lt;log-file&gt;</code> to verify messages exist</li>
+<li>Note: <code>kafka-console-consumer.sh</code> may time out in single-node KRaft mode</li>
+</ol>
+<h3 id="q6-omnipackage-version-detection-error">Q6: Omnipackage version detection error<a class="headerlink" href="#q6-omnipackage-version-detection-error" title="Permanent link">¶</a></h3>
+<ol>
+<li>Check the version detected by <code>OmniContext</code> in Driver/Executor logs</li>
+<li>Verify there are no conflicting <code>scala-library</code> JARs on the classpath</li>
+<li>If using a custom classpath, ensure <code>scala-library</code> matches the Spark version</li>
+</ol>
+<h3 id="q7-omnipackage-build-fails-adapters-relocated-not-found">Q7: Omnipackage build fails (adapters-relocated not found)<a class="headerlink" href="#q7-omnipackage-build-fails-adapters-relocated-not-found" title="Permanent link">¶</a></h3>
+<p>The <code>adapters-relocated</code> module is only activated under the <code>omni</code> profile. Use the <code>./build-omni.sh</code> script to build; do not build this module individually.</p>
+<hr/>
+<h2 id="appendix-version-compatibility-matrix">Appendix: Version Compatibility Matrix<a class="headerlink" href="#appendix-version-compatibility-matrix" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Minimum Version</th>
+<th>Recommended Version</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spark (Plugin)</td>
+<td>2.4.x</td>
+<td>3.5.x</td>
+<td>Spark 2 uses listener approach, 3/4 uses Plugin API</td>
+</tr>
+<tr>
+<td>Hadoop (MR Collector)</td>
+<td>2.7.0</td>
+<td>3.4.3</td>
+<td>Collector uses History Server REST API</td>
+</tr>
+<tr>
+<td>Hadoop (MR Agent)</td>
+<td>2.x / 3.x</td>
+<td>3.x</td>
+<td>Agent uses <code>mapreduce.*.java.opts</code></td>
+</tr>
+<tr>
+<td>Java</td>
+<td>8</td>
+<td>8</td>
+<td>Spark 4 requires JDK 17+</td>
+</tr>
+<tr>
+<td>OTel Collector</td>
+<td>0.96+</td>
+<td>0.96.0 (Contrib)</td>
+<td>Must use Contrib version</td>
+</tr>
+<tr>
+<td>Kafka</td>
+<td>3.7+</td>
+<td>3.7.0</td>
+<td>Supports KRaft mode</td>
+</tr>
+<tr>
+<td>Flink</td>
+<td>1.18</td>
+<td>1.18.0</td>
+<td>Last version supporting Java 8</td>
+</tr>
+<tr>
+<td>MySQL</td>
+<td>8.0</td>
+<td>8.0</td>
+<td>Flink Consumer Sink</td>
+</tr>
+<tr>
+<td>ClickHouse</td>
+<td>23.8</td>
+<td>23.8</td>
+<td>Flink Consumer Sink</td>
+</tr>
+</tbody>
+</table>
+<h2 id="appendix-port-reference">Appendix: Port Reference<a class="headerlink" href="#appendix-port-reference" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Port</th>
+<th>Protocol</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OTel Collector (gRPC)</td>
+<td>4317</td>
+<td>gRPC</td>
+<td>OTLP receive</td>
+</tr>
+<tr>
+<td>OTel Collector (HTTP)</td>
+<td>4318</td>
+<td>HTTP</td>
+<td>OTLP receive</td>
+</tr>
+<tr>
+<td>OTel Collector (Health)</td>
+<td>13133</td>
+<td>HTTP</td>
+<td>Health check</td>
+</tr>
+<tr>
+<td>Kafka Broker</td>
+<td>9092</td>
+<td>TCP</td>
+<td>Kafka client</td>
+</tr>
+<tr>
+<td>Kafka Controller</td>
+<td>9093</td>
+<td>TCP</td>
+<td>KRaft controller</td>
+</tr>
+<tr>
+<td>History Server (Hadoop 3)</td>
+<td>19888</td>
+<td>HTTP</td>
+<td>MR job history</td>
+</tr>
+<tr>
+<td>HDFS NN Web (Hadoop 3)</td>
+<td>9870</td>
+<td>HTTP</td>
+<td>NameNode Web UI</td>
+</tr>
+<tr>
+<td>HDFS NN Web (Hadoop 2)</td>
+<td>50070</td>
+<td>HTTP</td>
+<td>NameNode Web UI</td>
+</tr>
+<tr>
+<td>MySQL</td>
+<td>3306</td>
+<td>TCP</td>
+<td>MySQL protocol</td>
+</tr>
+<tr>
+<td>ClickHouse HTTP</td>
+<td>8123</td>
+<td>HTTP</td>
+<td>ClickHouse HTTP interface</td>
+</tr>
+<tr>
+<td>Grafana</td>
+<td>3000</td>
+<td>HTTP</td>
+<td>Grafana Web UI</td>
+</tr>
+</tbody>
+</table>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.suggest"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,2724 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Transparent Big Data Observability — Spark / MR / Hive Telemetry Collection">
+      
+      
+      
+      
+        <link rel="prev" href="../troubleshooting/">
+      
+      
+        <link rel="next" href="../mr-telemetry/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Spark Plugin - Hadoop Telemetry Stack</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spark-telemetry-plugin-deployment-metrics-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Hadoop Telemetry Stack" class="md-header__button md-logo" aria-label="Hadoop Telemetry Stack" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Hadoop Telemetry Stack
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spark Plugin
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/xmg333/hadoop-telemetry-stack" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Hadoop Telemetry Stack" class="md-nav__button md-logo" aria-label="Hadoop Telemetry Stack" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Hadoop Telemetry Stack
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/xmg333/hadoop-telemetry-stack" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deployment Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Full Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../infrastructure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Infrastructure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Component Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Component Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spark Plugin
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spark Plugin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deployment
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deployment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spark-3x-4x-sparkplugin-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spark 3.x / 4.x (SparkPlugin API)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Spark 3.x / 4.x (SparkPlugin API)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#distributing-the-jar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distributing the JAR
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spark-2x-sparkextralisteners" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spark 2.x (spark.extraListeners)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#omnipackage-unified-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Omnipackage Unified Deployment
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Omnipackage Unified Deployment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#omnipackage-vs-version-specific-jars" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Omnipackage vs Version-Specific JARs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hocon-configuration-file-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HOCON Configuration File (Optional)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#minimum-configuration-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Minimum Configuration (Required)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optional Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hocon-complete-reference-telemetryconf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HOCON Complete Reference (telemetry.conf)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metrics-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metrics Reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Metrics Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-io-metrics-always-collected" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core IO Metrics (Always Collected)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-execution-metrics-category-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task Execution Metrics (Category 1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extended-shuffle-metrics-category-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extended Shuffle Metrics (Category 2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stage-detailed-metrics-category-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stage Detailed Metrics (Category 4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#job-lifecycle-metrics-category-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Job Lifecycle Metrics (Category 5)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jvm-system-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JVM System Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metric-attributes-labels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metric Attributes (Labels)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sql-query-execution-metrics-category-6-enabled-by-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SQL Query Execution Metrics (Category 6, enabled by default)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mr-telemetry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MR Collector/Agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hive-hook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hive Hook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../flink-consumer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flink Consumer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagnostic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diagnostic Tool
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Grafana Dashboards
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Grafana Dashboards
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_2" id="__nav_7_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engine Views
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Engine Views
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-spark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spark
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-mr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MapReduce
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-hive-mr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hive on MR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-hive-spark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hive on Spark
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-spark-mr-hive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All Engines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_3" id="__nav_7_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Business Analysis
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Business Analysis
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-cost-attribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cost Attribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-performance-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-io-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IO Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-reliability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reliability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-hive-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hive Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-capacity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Capacity Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-efficiency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Efficiency Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../benchmarks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmarks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../zh_cn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    中文文档
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deployment
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deployment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spark-3x-4x-sparkplugin-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spark 3.x / 4.x (SparkPlugin API)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Spark 3.x / 4.x (SparkPlugin API)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#distributing-the-jar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distributing the JAR
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spark-2x-sparkextralisteners" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spark 2.x (spark.extraListeners)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#omnipackage-unified-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Omnipackage Unified Deployment
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Omnipackage Unified Deployment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#omnipackage-vs-version-specific-jars" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Omnipackage vs Version-Specific JARs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hocon-configuration-file-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HOCON Configuration File (Optional)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#minimum-configuration-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Minimum Configuration (Required)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optional Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hocon-complete-reference-telemetryconf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HOCON Complete Reference (telemetry.conf)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metrics-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metrics Reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Metrics Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-io-metrics-always-collected" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core IO Metrics (Always Collected)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-execution-metrics-category-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task Execution Metrics (Category 1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extended-shuffle-metrics-category-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extended Shuffle Metrics (Category 2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stage-detailed-metrics-category-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stage Detailed Metrics (Category 4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#job-lifecycle-metrics-category-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Job Lifecycle Metrics (Category 5)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jvm-system-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JVM System Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metric-attributes-labels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metric Attributes (Labels)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sql-query-execution-metrics-category-6-enabled-by-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SQL Query Execution Metrics (Category 6, enabled by default)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spark-telemetry-plugin-deployment-metrics-reference">Spark Telemetry Plugin -- Deployment &amp; Metrics Reference<a class="headerlink" href="#spark-telemetry-plugin-deployment-metrics-reference" title="Permanent link">&para;</a></h1>
+<h2 id="deployment">Deployment<a class="headerlink" href="#deployment" title="Permanent link">&para;</a></h2>
+<h3 id="spark-3x-4x-sparkplugin-api">Spark 3.x / 4.x (SparkPlugin API)<a class="headerlink" href="#spark-3x-4x-sparkplugin-api" title="Permanent link">&para;</a></h3>
+<h4 id="distributing-the-jar">Distributing the JAR<a class="headerlink" href="#distributing-the-jar" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Option A: HDFS</span>
+hdfs<span class="w"> </span>dfs<span class="w"> </span>-put<span class="w"> </span>spark/spark-telemetry-dist-spark3/target/spark-telemetry-dist-spark3-*.jar<span class="w"> </span>/spark/libs/
+
+<span class="c1"># Option B: Local Path</span>
+scp<span class="w"> </span>spark/spark-telemetry-dist-spark3/target/spark-telemetry-dist-spark3-*.jar<span class="w"> </span>node:/opt/spark/libs/
+</code></pre></div>
+<h4 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code>spark-submit<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--master<span class="w"> </span>yarn<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--deploy-mode<span class="w"> </span>cluster<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--jars<span class="w"> </span>/opt/spark/libs/spark-telemetry-plugin.jar<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--conf<span class="w"> </span>spark.plugins<span class="o">=</span>x.mg.metrics.sparktelemetry.adapter.SparkTelemetryPlugin<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--conf<span class="w"> </span>spark.telemetry.otel.exporter.endpoint<span class="o">=</span>http://otel-collector:4317<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--conf<span class="w"> </span>spark.telemetry.otel.service.name<span class="o">=</span>my-spark-app<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--conf<span class="w"> </span>spark.telemetry.otel.export.interval.ms<span class="o">=</span><span class="m">10000</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>your-app.jar
+</code></pre></div>
+<p><code>spark-defaults.conf</code> approach:</p>
+<div class="highlight"><pre><span></span><code><span class="na">spark.plugins</span><span class="w">              </span><span class="s">x.mg.metrics.sparktelemetry.adapter.SparkTelemetryPlugin</span>
+<span class="na">spark.telemetry.otel.exporter.endpoint</span><span class="w">    </span><span class="s">http://otel-collector:4317</span>
+<span class="na">spark.telemetry.otel.service.name</span><span class="w">         </span><span class="s">my-spark-app</span>
+<span class="na">spark.telemetry.otel.export.interval.ms</span><span class="w">   </span><span class="s">10000</span>
+</code></pre></div>
+<h3 id="spark-2x-sparkextralisteners">Spark 2.x (spark.extraListeners)<a class="headerlink" href="#spark-2x-sparkextralisteners" title="Permanent link">&para;</a></h3>
+<p>Spark 2.x does not have the <code>SparkPlugin</code> API:</p>
+<div class="highlight"><pre><span></span><code>spark-submit<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--master<span class="w"> </span>yarn<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--jars<span class="w"> </span>/opt/spark/libs/spark-telemetry-plugin.jar<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--conf<span class="w"> </span>spark.extraListeners<span class="o">=</span>x.mg.metrics.sparktelemetry.adapter.SparkTelemetryListener<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--conf<span class="w"> </span>spark.telemetry.otel.exporter.endpoint<span class="o">=</span>http://otel-collector:4317<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--conf<span class="w"> </span>spark.telemetry.otel.service.name<span class="o">=</span>my-spark2-app<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>your-app.jar
+</code></pre></div>
+<p><strong>Spark 2.x Notes</strong>:
+- Lazy initialization via <code>ensureInit()</code> on the first event
+- Shuffle Write API uses <code>shuffleBytesWritten</code> / <code>shuffleWriteTime</code> / <code>shuffleRecordsWritten</code> (different from 3.x)</p>
+<h3 id="omnipackage-unified-deployment">Omnipackage Unified Deployment<a class="headerlink" href="#omnipackage-unified-deployment" title="Permanent link">&para;</a></h3>
+<p>The Omnipackage combines Spark 2/3/4 + MR Collector + MR Agent + Hive Hook into a single JAR, auto-detecting the Spark version at runtime.</p>
+<p>Configuration is <strong>identical</strong> to version-specific JARs -- simply replace the JAR:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Spark 3/4</span>
+spark-submit<span class="w"> </span>--jars<span class="w"> </span>/opt/omnipackage.jar<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--conf<span class="w"> </span>spark.plugins<span class="o">=</span>x.mg.metrics.sparktelemetry.adapter.SparkTelemetryPlugin<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--conf<span class="w"> </span>spark.telemetry.otel.exporter.endpoint<span class="o">=</span>http://otel-collector:4317<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--conf<span class="w"> </span>spark.telemetry.otel.service.name<span class="o">=</span>my-app<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>your-app.jar
+
+<span class="c1"># Spark 2</span>
+spark-submit<span class="w"> </span>--jars<span class="w"> </span>/opt/omnipackage.jar<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--conf<span class="w"> </span>spark.extraListeners<span class="o">=</span>x.mg.metrics.sparktelemetry.adapter.SparkTelemetryListener<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--conf<span class="w"> </span>spark.telemetry.otel.exporter.endpoint<span class="o">=</span>http://otel-collector:4317<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--conf<span class="w"> </span>spark.telemetry.otel.service.name<span class="o">=</span>my-app<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>your-app.jar
+
+<span class="c1"># MR Collector mode</span>
+java<span class="w"> </span>-jar<span class="w"> </span>omnipackage.jar<span class="w"> </span>--mr-collector<span class="w"> </span>/path/to/mr-collector.conf
+
+<span class="c1"># MR Agent mode</span>
+-javaagent:/opt/omnipackage.jar<span class="w"> </span>-Dmr.telemetry.agent.otel.exporter.endpoint<span class="o">=</span>http://otel-collector:4317
+</code></pre></div>
+<h4 id="omnipackage-vs-version-specific-jars">Omnipackage vs Version-Specific JARs<a class="headerlink" href="#omnipackage-vs-version-specific-jars" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Version-Specific JAR</th>
+<th>Omnipackage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>File count</td>
+<td>3 (one each for Spark 2/3/4)</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Operational complexity</td>
+<td>Distribute by Spark version</td>
+<td>Unified distribution</td>
+</tr>
+<tr>
+<td>Configuration differences</td>
+<td>Version-specific entry classes</td>
+<td>Same entry class, auto-detection</td>
+</tr>
+<tr>
+<td>JAR size</td>
+<td>~30MB each</td>
+<td>~50-60MB</td>
+</tr>
+<tr>
+<td>MR support</td>
+<td>Requires separate JARs</td>
+<td>Includes MR Collector + Agent</td>
+</tr>
+</tbody>
+</table>
+<h3 id="hocon-configuration-file-optional">HOCON Configuration File (Optional)<a class="headerlink" href="#hocon-configuration-file-optional" title="Permanent link">&para;</a></h3>
+<p>In addition to Spark Conf, detailed configuration via a HOCON file is also supported:</p>
+<div class="highlight"><pre><span></span><code>cp<span class="w"> </span>conf/examples/telemetry.conf.example<span class="w"> </span>telemetry.conf
+spark-submit<span class="w"> </span>--files<span class="w"> </span>telemetry.conf<span class="w"> </span>...
+</code></pre></div>
+<p>Config priority: <strong>Spark Conf override &gt; HOCON file &gt; Built-in defaults</strong></p>
+<h3 id="verification">Verification<a class="headerlink" href="#verification" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Check Driver/Executor logs</span>
+<span class="c1"># Should see: INFO TelemetryLifecycle: Telemetry initialized, endpoint=http://collector:4317</span>
+
+<span class="c1"># Check OTel Collector</span>
+kubectl<span class="w"> </span>logs<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>otel-collector<span class="w"> </span>--tail<span class="o">=</span><span class="m">100</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;spark\.&quot;</span>
+</code></pre></div>
+<blockquote>
+<p><strong>Note</strong>: Short-lived Spark jobs (&lt; 10s) may complete before the OTel SDK's first export. Use longer-running jobs for testing, or reduce <code>spark.telemetry.otel.export.interval.ms</code>.</p>
+</blockquote>
+<hr />
+<h2 id="configuration-parameters">Configuration Parameters<a class="headerlink" href="#configuration-parameters" title="Permanent link">&para;</a></h2>
+<h3 id="minimum-configuration-required">Minimum Configuration (Required)<a class="headerlink" href="#minimum-configuration-required" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spark.plugins</code></td>
+<td>Spark plugin class name</td>
+<td><code>x.mg.metrics.sparktelemetry.adapter.SparkTelemetryPlugin</code></td>
+</tr>
+<tr>
+<td><code>spark.telemetry.otel.exporter.endpoint</code></td>
+<td>OTel Collector gRPC endpoint</td>
+<td><code>http://collector:4317</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="optional-configuration">Optional Configuration<a class="headerlink" href="#optional-configuration" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spark.telemetry.otel.service.name</code></td>
+<td><code>spark-application</code></td>
+<td>OTel service name</td>
+</tr>
+<tr>
+<td><code>spark.telemetry.otel.export.interval.ms</code></td>
+<td><code>10000</code></td>
+<td>Metrics export interval (ms)</td>
+</tr>
+<tr>
+<td><code>spark.telemetry.otel.export.max-data-points-per-batch</code></td>
+<td><code>5000</code></td>
+<td>Maximum data points per OTLP export batch (used by SplittingMetricExporter for large metric batches)</td>
+</tr>
+<tr>
+<td><code>spark.telemetry.otel.exporter.protocol</code></td>
+<td><code>grpc</code></td>
+<td>Export protocol (<code>grpc</code> / <code>http</code>)</td>
+</tr>
+<tr>
+<td><code>spark.telemetry.config.path</code></td>
+<td>(classpath)</td>
+<td>HOCON config file path</td>
+</tr>
+<tr>
+<td><code>spark.telemetry.metrics.task.execution</code></td>
+<td><code>true</code></td>
+<td>Category 1: task execution metrics</td>
+</tr>
+<tr>
+<td><code>spark.telemetry.metrics.task.shuffle-extended</code></td>
+<td><code>true</code></td>
+<td>Category 2: extended shuffle metrics</td>
+</tr>
+<tr>
+<td><code>spark.telemetry.metrics.task.info</code></td>
+<td><code>true</code></td>
+<td>Category 3: task info attributes</td>
+</tr>
+<tr>
+<td><code>spark.telemetry.metrics.stage.detailed</code></td>
+<td><code>true</code></td>
+<td>Category 4: stage detailed metrics</td>
+</tr>
+<tr>
+<td><code>spark.telemetry.metrics.job.lifecycle</code></td>
+<td><code>true</code></td>
+<td>Category 5: job lifecycle metrics</td>
+</tr>
+<tr>
+<td><code>spark.telemetry.metrics.sql.query-execution</code></td>
+<td><code>true</code></td>
+<td>Category 6: SQL query execution metrics</td>
+</tr>
+<tr>
+<td><code>spark.telemetry.metrics.sql.max-length</code></td>
+<td><code>4096</code></td>
+<td>Maximum SQL text truncation length (characters)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Important</strong>: Spark config keys must include the full internal path, including the <code>.otel.</code> segment. The mapping is <code>spark.telemetry.X</code> -&gt; <code>spark-telemetry.X</code>:
+- Correct: <code>spark.telemetry.otel.exporter.endpoint=http://host:4317</code>
+- Incorrect: <code>spark.telemetry.exporter.endpoint=http://host:4317</code></p>
+</blockquote>
+<h3 id="hocon-complete-reference-telemetryconf">HOCON Complete Reference (telemetry.conf)<a class="headerlink" href="#hocon-complete-reference-telemetryconf" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>spark-telemetry {
+  otel {
+    exporter.endpoint = &quot;http://localhost:4317&quot;
+    exporter.protocol = &quot;grpc&quot;
+    service.name = &quot;spark-application&quot;
+    export.interval.ms = 10000
+    resource.attributes = {
+      &quot;deployment.environment&quot; = &quot;production&quot;
+    }
+  }
+
+  metrics {
+    listener {
+      enabled = true
+      capture.task-end = true
+      capture.stage-complete = true
+      capture.job-end = true
+    }
+
+    system {
+      enabled = true
+      capture.jvm-memory = true
+      capture.jvm-gc = true
+      capture.buffer-pools = true
+      capture.executor-memory = true
+    }
+
+    task.execution = true             # Category 1
+    task.shuffle-extended = true      # Category 2
+    task.info = true                  # Category 3
+    stage.detailed = true             # Category 4
+    job.lifecycle = true              # Category 5
+    sql.query-execution = true        # Category 6
+    sql.max-length = 4096           # SQL text truncation
+  }
+
+  filter {
+    app.name.include = [&quot;.*&quot;]
+    app.name.exclude = []
+  }
+}
+</code></pre></div>
+<hr />
+<h2 id="metrics-reference">Metrics Reference<a class="headerlink" href="#metrics-reference" title="Permanent link">&para;</a></h2>
+<h3 id="core-io-metrics-always-collected">Core IO Metrics (Always Collected)<a class="headerlink" href="#core-io-metrics-always-collected" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric Name</th>
+<th>Type</th>
+<th>Unit</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spark.task.io.bytes_read</code></td>
+<td>Counter</td>
+<td>By</td>
+<td>Task bytes read</td>
+</tr>
+<tr>
+<td><code>spark.task.io.bytes_written</code></td>
+<td>Counter</td>
+<td>By</td>
+<td>Task bytes written</td>
+</tr>
+<tr>
+<td><code>spark.task.io.records_read</code></td>
+<td>Counter</td>
+<td>{records}</td>
+<td>Task records read</td>
+</tr>
+<tr>
+<td><code>spark.task.io.records_written</code></td>
+<td>Counter</td>
+<td>{records}</td>
+<td>Task records written</td>
+</tr>
+<tr>
+<td><code>spark.task.shuffle.bytes_read</code></td>
+<td>Counter</td>
+<td>By</td>
+<td>Shuffle bytes read</td>
+</tr>
+<tr>
+<td><code>spark.task.shuffle.bytes_written</code></td>
+<td>Counter</td>
+<td>By</td>
+<td>Shuffle bytes written</td>
+</tr>
+<tr>
+<td><code>spark.task.shuffle.fetch_wait_time_ms</code></td>
+<td>Counter</td>
+<td>ms</td>
+<td>Shuffle fetch wait time</td>
+</tr>
+<tr>
+<td><code>spark.task.disk_bytes_spilled</code></td>
+<td>Counter</td>
+<td>By</td>
+<td>Disk bytes spilled</td>
+</tr>
+<tr>
+<td><code>spark.task.memory_bytes_spilled</code></td>
+<td>Counter</td>
+<td>By</td>
+<td>Memory bytes spilled</td>
+</tr>
+<tr>
+<td><code>spark.task.duration_ms</code></td>
+<td>Histogram</td>
+<td>ms</td>
+<td>Task execution duration</td>
+</tr>
+</tbody>
+</table>
+<h3 id="task-execution-metrics-category-1">Task Execution Metrics (Category 1)<a class="headerlink" href="#task-execution-metrics-category-1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric Name</th>
+<th>Type</th>
+<th>Unit</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spark.task.executor.run_time_ms</code></td>
+<td>Histogram</td>
+<td>ms</td>
+<td>Executor run time</td>
+</tr>
+<tr>
+<td><code>spark.task.executor.cpu_time_ns</code></td>
+<td>Counter</td>
+<td>ns</td>
+<td>Executor CPU time</td>
+</tr>
+<tr>
+<td><code>spark.task.deserialize_time_ms</code></td>
+<td>Histogram</td>
+<td>ms</td>
+<td>Deserialization time</td>
+</tr>
+<tr>
+<td><code>spark.task.deserialize_cpu_time_ns</code></td>
+<td>Counter</td>
+<td>ns</td>
+<td>Deserialization CPU time</td>
+</tr>
+<tr>
+<td><code>spark.task.result_serialization_time_ms</code></td>
+<td>Histogram</td>
+<td>ms</td>
+<td>Result serialization time</td>
+</tr>
+<tr>
+<td><code>spark.task.jvm_gc_time_ms</code></td>
+<td>Histogram</td>
+<td>ms</td>
+<td>Task JVM GC time</td>
+</tr>
+<tr>
+<td><code>spark.task.scheduler_delay_ms</code></td>
+<td>Histogram</td>
+<td>ms</td>
+<td>Scheduler delay</td>
+</tr>
+<tr>
+<td><code>spark.task.result_size_bytes</code></td>
+<td>Counter</td>
+<td>By</td>
+<td>Task result size</td>
+</tr>
+<tr>
+<td><code>spark.task.peak_execution_memory_bytes</code></td>
+<td>Counter</td>
+<td>By</td>
+<td>Peak execution memory</td>
+</tr>
+</tbody>
+</table>
+<h3 id="extended-shuffle-metrics-category-2">Extended Shuffle Metrics (Category 2)<a class="headerlink" href="#extended-shuffle-metrics-category-2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric Name</th>
+<th>Type</th>
+<th>Unit</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spark.task.shuffle.local_blocks_fetched</code></td>
+<td>Counter</td>
+<td>{blocks}</td>
+<td>Local shuffle blocks fetched</td>
+</tr>
+<tr>
+<td><code>spark.task.shuffle.records_read</code></td>
+<td>Counter</td>
+<td>{records}</td>
+<td>Shuffle records read</td>
+</tr>
+<tr>
+<td><code>spark.task.shuffle.remote_bytes_read_to_disk</code></td>
+<td>Counter</td>
+<td>By</td>
+<td>Remote shuffle bytes read to disk</td>
+</tr>
+<tr>
+<td><code>spark.task.shuffle.remote_reqs_duration_ms</code></td>
+<td>Counter</td>
+<td>ms</td>
+<td>Remote shuffle request duration</td>
+</tr>
+</tbody>
+</table>
+<h3 id="stage-detailed-metrics-category-4">Stage Detailed Metrics (Category 4)<a class="headerlink" href="#stage-detailed-metrics-category-4" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric Name</th>
+<th>Type</th>
+<th>Unit</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spark.stage.duration_ms</code></td>
+<td>Histogram</td>
+<td>ms</td>
+<td>Stage duration</td>
+</tr>
+<tr>
+<td><code>spark.stage.num_tasks</code></td>
+<td>Counter</td>
+<td>{tasks}</td>
+<td>Number of tasks in stage</td>
+</tr>
+<tr>
+<td><code>spark.stage.executor.run_time_ms</code></td>
+<td>Counter</td>
+<td>ms</td>
+<td>Stage total executor run time</td>
+</tr>
+<tr>
+<td><code>spark.stage.executor.cpu_time_ns</code></td>
+<td>Counter</td>
+<td>ns</td>
+<td>Stage total CPU time</td>
+</tr>
+<tr>
+<td><code>spark.stage.jvm_gc_time_ms</code></td>
+<td>Counter</td>
+<td>ms</td>
+<td>Stage total GC time</td>
+</tr>
+<tr>
+<td><code>spark.stage.peak_execution_memory_bytes</code></td>
+<td>Counter</td>
+<td>By</td>
+<td>Stage peak memory</td>
+</tr>
+<tr>
+<td><code>spark.stage.io.bytes_read</code></td>
+<td>Counter</td>
+<td>By</td>
+<td>Stage bytes read (independent of task-level)</td>
+</tr>
+<tr>
+<td><code>spark.stage.io.bytes_written</code></td>
+<td>Counter</td>
+<td>By</td>
+<td>Stage bytes written (independent of task-level)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="job-lifecycle-metrics-category-5">Job Lifecycle Metrics (Category 5)<a class="headerlink" href="#job-lifecycle-metrics-category-5" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric Name</th>
+<th>Type</th>
+<th>Unit</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spark.job.duration_ms</code></td>
+<td>Histogram</td>
+<td>ms</td>
+<td>Job duration</td>
+</tr>
+<tr>
+<td><code>spark.job.num_stages</code></td>
+<td>Counter</td>
+<td>{stages}</td>
+<td>Number of stages in job</td>
+</tr>
+</tbody>
+</table>
+<h3 id="jvm-system-metrics">JVM System Metrics<a class="headerlink" href="#jvm-system-metrics" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric Name</th>
+<th>Type</th>
+<th>Unit</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spark.jvm.memory.heap_used</code></td>
+<td>Gauge</td>
+<td>By</td>
+<td>JVM heap memory used</td>
+</tr>
+<tr>
+<td><code>spark.jvm.memory.non_heap_used</code></td>
+<td>Gauge</td>
+<td>By</td>
+<td>JVM non-heap memory used</td>
+</tr>
+<tr>
+<td><code>spark.jvm.gc.count</code></td>
+<td>Counter</td>
+<td>{count}</td>
+<td>GC count (by gc_name)</td>
+</tr>
+<tr>
+<td><code>spark.jvm.gc.time_ms</code></td>
+<td>Counter</td>
+<td>ms</td>
+<td>GC time</td>
+</tr>
+</tbody>
+</table>
+<h3 id="metric-attributes-labels">Metric Attributes (Labels)<a class="headerlink" href="#metric-attributes-labels" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Attribute Name</th>
+<th>Scope</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spark.app.id</code></td>
+<td>All</td>
+<td>Application ID</td>
+</tr>
+<tr>
+<td><code>spark.app.name</code></td>
+<td>All</td>
+<td>Application name</td>
+</tr>
+<tr>
+<td><code>spark.user</code></td>
+<td>All</td>
+<td>User running the application (from SparkConf <code>spark.user</code> or system property)</td>
+</tr>
+<tr>
+<td><code>spark.yarn.queue</code></td>
+<td>All</td>
+<td>YARN queue name</td>
+</tr>
+<tr>
+<td><code>spark.executor.id</code></td>
+<td>Task / System</td>
+<td>Executor ID</td>
+</tr>
+<tr>
+<td><code>spark.stage.id</code></td>
+<td>Task / Stage</td>
+<td>Stage ID</td>
+</tr>
+<tr>
+<td><code>spark.task.id</code></td>
+<td>Task</td>
+<td>Task ID</td>
+</tr>
+<tr>
+<td><code>spark.task.success</code></td>
+<td>Task</td>
+<td>Whether the task succeeded</td>
+</tr>
+<tr>
+<td><code>spark.task.host</code></td>
+<td>Task</td>
+<td>Task execution host (Category 3)</td>
+</tr>
+<tr>
+<td><code>spark.task.locality</code></td>
+<td>Task</td>
+<td>Data locality (Category 3)</td>
+</tr>
+<tr>
+<td><code>spark.task.speculative</code></td>
+<td>Task</td>
+<td>Whether speculative execution (Category 3)</td>
+</tr>
+<tr>
+<td><code>spark.job.id</code></td>
+<td>Job</td>
+<td>Job ID</td>
+</tr>
+<tr>
+<td><code>spark.job.success</code></td>
+<td>Job</td>
+<td>Whether the job succeeded</td>
+</tr>
+<tr>
+<td><code>gc_name</code></td>
+<td>GC</td>
+<td>GC collector name</td>
+</tr>
+<tr>
+<td><code>spark.sql.execution_id</code></td>
+<td>SQL Query</td>
+<td>SQL execution ID (Spark 3.x+)</td>
+</tr>
+<tr>
+<td><code>spark.sql.query_text</code></td>
+<td>SQL Query</td>
+<td>SQL query text (truncated)</td>
+</tr>
+<tr>
+<td><code>spark.sql.table_name</code></td>
+<td>SQL Table IO</td>
+<td>Table name (SQL table IO metrics only)</td>
+</tr>
+<tr>
+<td><code>spark.sql.operation</code></td>
+<td>SQL Table IO</td>
+<td>Operation type: scan/write (SQL table IO metrics only)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sql-query-execution-metrics-category-6-enabled-by-default">SQL Query Execution Metrics (Category 6, enabled by default)<a class="headerlink" href="#sql-query-execution-metrics-category-6-enabled-by-default" title="Permanent link">&para;</a></h3>
+<p>Enable with: <code>spark.telemetry.metrics.sql.query-execution=true</code></p>
+<table>
+<thead>
+<tr>
+<th>Metric Name</th>
+<th>Type</th>
+<th>Unit</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spark.sql.query.duration_ms</code></td>
+<td>Histogram</td>
+<td>ms</td>
+<td>SQL query execution duration</td>
+</tr>
+<tr>
+<td><code>spark.sql.query.shuffle.bytes_read</code></td>
+<td>Counter</td>
+<td>By</td>
+<td>Shuffle bytes read</td>
+</tr>
+<tr>
+<td><code>spark.sql.query.shuffle.bytes_written</code></td>
+<td>Counter</td>
+<td>By</td>
+<td>Shuffle bytes written</td>
+</tr>
+<tr>
+<td><code>spark.sql.query.join_count</code></td>
+<td>Counter</td>
+<td>{joins}</td>
+<td>Number of joins</td>
+</tr>
+<tr>
+<td><code>spark.sql.table.bytes</code></td>
+<td>Counter</td>
+<td>By</td>
+<td>Table-level IO bytes</td>
+</tr>
+<tr>
+<td><code>spark.sql.table.rows</code></td>
+<td>Counter</td>
+<td>{rows}</td>
+<td>Table-level IO rows</td>
+</tr>
+<tr>
+<td><code>spark.sql.table.files_read</code></td>
+<td>Counter</td>
+<td>{files}</td>
+<td>Number of files scanned</td>
+</tr>
+<tr>
+<td><code>spark.sql.table.time_ms</code></td>
+<td>Counter</td>
+<td>ms</td>
+<td>Table IO time (covers both scan and write operations)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Spark 2.x Limitation</strong>: In Spark 2.x, <code>spark.sql.execution_id</code> and <code>spark.sql.query_text</code> are NOT available. Spark 2.x's <code>QueryExecution</code> has no <code>id</code> field, so <code>executionId</code> stays at 0 and SQL text is not captured.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.suggest"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

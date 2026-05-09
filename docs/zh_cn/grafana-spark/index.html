@@ -1,0 +1,2077 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Transparent Big Data Observability — Spark / MR / Hive Telemetry Collection">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Spark 引擎透视 - Hadoop Telemetry Stack</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spark" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Hadoop Telemetry Stack" class="md-header__button md-logo" aria-label="Hadoop Telemetry Stack" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Hadoop Telemetry Stack
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spark 引擎透视
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/xmg333/hadoop-telemetry-stack" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Hadoop Telemetry Stack" class="md-nav__button md-logo" aria-label="Hadoop Telemetry Stack" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Hadoop Telemetry Stack
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/xmg333/hadoop-telemetry-stack" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deployment Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Full Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../infrastructure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Infrastructure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Component Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Component Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../spark-plugin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spark Plugin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mr-telemetry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MR Collector/Agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hive-hook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hive Hook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../flink-consumer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flink Consumer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../diagnostic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diagnostic Tool
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Grafana Dashboards
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Grafana Dashboards
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../grafana-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_2" id="__nav_7_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engine Views
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Engine Views
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../grafana-spark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spark
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../grafana-mr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MapReduce
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../grafana-hive-mr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hive on MR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../grafana-hive-spark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hive on Spark
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../grafana-spark-mr-hive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All Engines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_3" id="__nav_7_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Business Analysis
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Business Analysis
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../grafana-cost-attribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cost Attribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../grafana-performance-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../grafana-io-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IO Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../grafana-reliability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reliability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../grafana-hive-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hive Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../grafana-capacity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Capacity Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../grafana-efficiency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Efficiency Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../benchmarks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmarks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    中文文档
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        概述
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        前置条件
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        面板说明
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="面板说明">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#4-stat-y0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        概览统计（4 个 stat 面板，y=0）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="概览统计（4 个 stat 面板，y=0）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#total-tasksstat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Total Tasks（stat）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#total-stagesstat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Total Stages（stat）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#skewed-stagesstat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skewed Stages（stat）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#avg-cpu-efficiencystat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Avg CPU Efficiency（stat）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-io-y4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task IO 与耗时趋势（y=4）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Task IO 与耗时趋势（y=4）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-io-bytestimeseries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task I/O Bytes（timeseries）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-durationtimeseries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task Duration（timeseries）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jvm-y12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JVM 监控（y=12）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="JVM 监控（y=12）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#jvm-memorytimeseries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JVM Memory（timeseries）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jvm-gctimeseries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JVM GC（timeseries）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stage-joby20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stage 与 Job（y=20）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Stage 与 Job（y=20）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stage-duration-task-counttimeseries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stage Duration &amp; Task Count（timeseries）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#job-overviewtable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Job Overview（table）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#y28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        治理分析（y=28）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="治理分析（y=28）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-skew-detectiontable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Skew Detection（table）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource-efficiencytable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource Efficiency（table）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#y36" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        直方图与小文件（y=36）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="直方图与小文件（y=36）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-duration-histogrambarchart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task Duration Histogram（barchart）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#small-file-detectiontable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Small File Detection（table）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-y44" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 详情（y=44）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Task 详情（y=44）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-detailtable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task Detail（table，全宽）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sql-y52-72" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SQL 查询分析（y=52-72）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SQL 查询分析（y=52-72）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sql-queries-avg-sql-query-duration-total-sql-joins-sql-table-scanswrites4-stat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SQL Queries / Avg SQL Query Duration / Total SQL Joins / SQL Table Scans/Writes（4 个 stat）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sql-query-durationtimeseries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SQL Query Duration（timeseries）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sql-shuffle-bytestimeseries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SQL Shuffle Bytes（timeseries）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sql-table-io-detailtable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SQL Table IO Detail（table，全宽）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sql-query-detailtable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SQL Query Detail（table，全宽）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        导航
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        注意事项
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spark">Spark 引擎透视<a class="headerlink" href="#spark" title="Permanent link">&para;</a></h1>
+<h2 id="_1">概述<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>本仪表盘是 Spark 引擎的基础透视面板，提供最全面的 Spark 指标展示，帮助回答以下问题：
+- 当前应用有多少 Task、Stage、Job？
+- 是否存在数据倾斜的 Stage？
+- CPU 效率如何？
+- Task IO、Shuffle、内存使用情况如何？
+- JVM 内存和 GC 是否正常？
+- SQL 查询和表 IO 详情如何？</p>
+<h2 id="_2">前置条件<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p>数据源：<code>task_metrics</code>、<code>stage_metrics</code>、<code>job_metrics</code>、<code>jvm_memory_metrics</code>、<code>jvm_gc_metrics</code>、<code>sql_query_metrics</code>、<code>sql_query_table_metrics</code>、<code>stage_governance</code>、<code>task_histogram_buckets</code></p>
+<dl>
+<dt>Grafana 变量：</dt>
+<dd><code>$app_id</code> — Spark 应用 ID（多选，含 All）</dd>
+<dd><code>$__interval_ms</code>, <code>$__unixEpochFrom()</code>, <code>$__unixEpochTo()</code></dd>
+</dl>
+<p>变量查询：<code>SELECT DISTINCT app_id FROM task_metrics ORDER BY app_id</code></p>
+<h2 id="_3">面板说明<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h3 id="4-stat-y0">概览统计（4 个 stat 面板，y=0）<a class="headerlink" href="#4-stat-y0" title="Permanent link">&para;</a></h3>
+<h4 id="total-tasksstat">Total Tasks（stat）<a class="headerlink" href="#total-tasksstat" title="Permanent link">&para;</a></h4>
+<p><strong>用途</strong>: 展示选中应用的总 Task 数。</p>
+<p><strong>SQL 查询</strong>:
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">task_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">value</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">task_metrics</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">timestamp_ms</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="p">(</span><span class="err">$</span><span class="n">__unixEpochFrom</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span>
+<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">timestamp_ms</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="p">(</span><span class="err">$</span><span class="n">__unixEpochTo</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span>
+<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">app_id</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="err">$</span><span class="n">app_id</span><span class="p">)</span>
+</code></pre></div></p>
+<h4 id="total-stagesstat">Total Stages（stat）<a class="headerlink" href="#total-stagesstat" title="Permanent link">&para;</a></h4>
+<p><strong>用途</strong>: 展示选中应用的总 Stage 数。</p>
+<p><strong>SQL 查询</strong>:
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">stage_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">value</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">stage_metrics</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">timestamp_ms</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="p">(</span><span class="err">$</span><span class="n">__unixEpochFrom</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span>
+<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">timestamp_ms</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="p">(</span><span class="err">$</span><span class="n">__unixEpochTo</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span>
+<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">app_id</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="err">$</span><span class="n">app_id</span><span class="p">)</span>
+</code></pre></div></p>
+<h4 id="skewed-stagesstat">Skewed Stages（stat）<a class="headerlink" href="#skewed-stagesstat" title="Permanent link">&para;</a></h4>
+<p><strong>用途</strong>: 检测数据倾斜的 Stage 数量（<code>duration_skew_ratio &gt; 2</code>）。阈值：0 绿色，1+ 黄色，5+ 红色。</p>
+<p><strong>SQL 查询</strong>:
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">stage_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">value</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">stage_governance</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">timestamp_ms</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="p">(</span><span class="err">$</span><span class="n">__unixEpochFrom</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span>
+<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">timestamp_ms</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="p">(</span><span class="err">$</span><span class="n">__unixEpochTo</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span>
+<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">app_id</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="err">$</span><span class="n">app_id</span><span class="p">)</span>
+<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">duration_skew_ratio</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">2</span>
+</code></pre></div></p>
+<p><strong>使用建议</strong>: 如果倾斜 Stage 数 &gt; 0，查看 Data Skew Detection 面板详情，考虑 repartition 或增加分区数。</p>
+<h4 id="avg-cpu-efficiencystat">Avg CPU Efficiency（stat）<a class="headerlink" href="#avg-cpu-efficiencystat" title="Permanent link">&para;</a></h4>
+<p><strong>用途</strong>: 展示所有 Stage 的平均 CPU 效率（CPU 时间 / 执行时间）。阈值：&lt;0.3 红色，0.3-0.5 橙色，0.5-0.7 黄色，&gt;0.7 绿色。</p>
+<p><strong>SQL 查询</strong>:
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">AVG</span><span class="p">(</span><span class="n">cpu_efficiency</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">value</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">stage_governance</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">timestamp_ms</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="p">(</span><span class="err">$</span><span class="n">__unixEpochFrom</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span>
+<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">timestamp_ms</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="p">(</span><span class="err">$</span><span class="n">__unixEpochTo</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span>
+<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">app_id</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="err">$</span><span class="n">app_id</span><span class="p">)</span>
+<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">cpu_efficiency</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span>
+</code></pre></div></p>
+<p><strong>使用建议</strong>: CPU 效率低于 0.5 说明任务大部分时间在等待 IO 或 GC，需检查 Shuffle 和 GC 面板。</p>
+<h3 id="task-io-y4">Task IO 与耗时趋势（y=4）<a class="headerlink" href="#task-io-y4" title="Permanent link">&para;</a></h3>
+<h4 id="task-io-bytestimeseries">Task I/O Bytes（timeseries）<a class="headerlink" href="#task-io-bytestimeseries" title="Permanent link">&para;</a></h4>
+<p><strong>用途</strong>: 展示 4 条线：Bytes Read、Bytes Written、Shuffle Read、Shuffle Written 随时间的变化。</p>
+<p><strong>SQL 查询</strong>:
+<div class="highlight"><pre><span></span><code><span class="c1">-- 4 个 target 分别查询 io_bytes_read、io_bytes_written、shuffle_bytes_read、shuffle_bytes_written</span>
+<span class="c1">-- FROM task_metrics WHERE ... AND app_id IN ($app_id) AND duration_ms IS NOT NULL</span>
+</code></pre></div></p>
+<p><strong>使用建议</strong>: Shuffle 数据量大且持续增长可能说明 Join 策略不佳或分区过多。</p>
+<h4 id="task-durationtimeseries">Task Duration（timeseries）<a class="headerlink" href="#task-durationtimeseries" title="Permanent link">&para;</a></h4>
+<p><strong>用途</strong>: 展示 Task 耗时的 AVG / MAX / MIN 三条趋势线。</p>
+<p><strong>SQL 查询</strong>:
+<div class="highlight"><pre><span></span><code><span class="c1">-- 3 个 target: AVG(duration_ms), MAX(duration_ms), MIN(duration_ms)</span>
+<span class="c1">-- FROM task_metrics WHERE ... AND app_id IN ($app_id) AND duration_ms IS NOT NULL</span>
+</code></pre></div></p>
+<p><strong>使用建议</strong>: MAX 与 AVG 差距过大说明存在长尾 Task，可能是数据倾斜或资源竞争。</p>
+<h3 id="jvm-y12">JVM 监控（y=12）<a class="headerlink" href="#jvm-y12" title="Permanent link">&para;</a></h3>
+<h4 id="jvm-memorytimeseries">JVM Memory（timeseries）<a class="headerlink" href="#jvm-memorytimeseries" title="Permanent link">&para;</a></h4>
+<p><strong>用途</strong>: 展示 Heap Used 和 Non-Heap Used 的平均内存使用趋势。</p>
+<p><strong>SQL 查询</strong>:
+<div class="highlight"><pre><span></span><code><span class="c1">-- AVG(heap_used), AVG(non_heap_used) FROM jvm_memory_metrics WHERE app_id IN ($app_id)</span>
+</code></pre></div></p>
+<p><strong>使用建议</strong>: Heap 持续增长不回落可能存在内存泄漏。Non-Heap 异常增长检查 Metaspace 或线程栈。</p>
+<h4 id="jvm-gctimeseries">JVM GC（timeseries）<a class="headerlink" href="#jvm-gctimeseries" title="Permanent link">&para;</a></h4>
+<p><strong>用途</strong>: 展示 GC Count 和 GC Time 趋势。GC Count 在右轴，GC Time 在左轴（ms）。</p>
+<p><strong>SQL 查询</strong>:
+<div class="highlight"><pre><span></span><code><span class="c1">-- SUM(gc_count), SUM(gc_time_ms) FROM jvm_gc_metrics WHERE app_id IN ($app_id)</span>
+</code></pre></div></p>
+<p><strong>使用建议</strong>: GC Time 占 Task Duration 比例 &gt; 10% 需优化 JVM 参数（增大堆或切换 GC 算法）。</p>
+<h3 id="stage-joby20">Stage 与 Job（y=20）<a class="headerlink" href="#stage-joby20" title="Permanent link">&para;</a></h3>
+<h4 id="stage-duration-task-counttimeseries">Stage Duration &amp; Task Count（timeseries）<a class="headerlink" href="#stage-duration-task-counttimeseries" title="Permanent link">&para;</a></h4>
+<p><strong>用途</strong>: 双轴图展示 Stage 平均耗时和平均 Task 数。</p>
+<p><strong>SQL 查询</strong>:
+<div class="highlight"><pre><span></span><code><span class="c1">-- AVG(duration_ms) AS &#39;Stage Duration&#39;, AVG(num_tasks) AS &#39;Task Count&#39;</span>
+<span class="c1">-- FROM stage_metrics WHERE app_id IN ($app_id)</span>
+</code></pre></div></p>
+<h4 id="job-overviewtable">Job Overview（table）<a class="headerlink" href="#job-overviewtable" title="Permanent link">&para;</a></h4>
+<p><strong>用途</strong>: 展示 Job 列表及完成状态。</p>
+<p><strong>SQL 查询</strong>:
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">app_id</span><span class="p">,</span><span class="w"> </span><span class="n">job_id</span><span class="p">,</span><span class="w"> </span><span class="n">job_success</span><span class="p">,</span><span class="w"> </span><span class="n">duration_ms</span><span class="p">,</span><span class="w"> </span><span class="n">num_stages</span><span class="p">,</span>
+<span class="w">       </span><span class="n">FROM_UNIXTIME</span><span class="p">(</span><span class="n">timestamp_ms</span><span class="o">/</span><span class="mi">1000</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">completed_at</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">job_metrics</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">app_id</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="err">$</span><span class="n">app_id</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">timestamp_ms</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">100</span>
+</code></pre></div></p>
+<p><strong>列说明</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>列名</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>job_success</code></td>
+<td>任务状态（SUCCESS 绿色 / FAILED 红色）</td>
+</tr>
+<tr>
+<td><code>duration_ms</code></td>
+<td>Job 耗时（ms）</td>
+</tr>
+<tr>
+<td><code>num_stages</code></td>
+<td>Stage 数量</td>
+</tr>
+</tbody>
+</table>
+<h3 id="y28">治理分析（y=28）<a class="headerlink" href="#y28" title="Permanent link">&para;</a></h3>
+<h4 id="data-skew-detectiontable">Data Skew Detection（table）<a class="headerlink" href="#data-skew-detectiontable" title="Permanent link">&para;</a></h4>
+<p><strong>用途</strong>: 展示存在数据倾斜的 Stage 列表，按 <code>duration_skew_ratio</code> 降序排列。倾斜比率用渐变色标注（&gt;1.5 黄色，&gt;2 红色）。</p>
+<p><strong>SQL 查询</strong>:
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">app_id</span><span class="p">,</span><span class="w"> </span><span class="n">stage_id</span><span class="p">,</span><span class="w"> </span><span class="n">task_count</span><span class="p">,</span><span class="w"> </span><span class="n">stage_duration_ms</span><span class="p">,</span>
+<span class="w">       </span><span class="n">avg_task_duration_ms</span><span class="p">,</span><span class="w"> </span><span class="n">max_task_duration_ms</span><span class="p">,</span><span class="w"> </span><span class="n">min_task_duration_ms</span><span class="p">,</span>
+<span class="w">       </span><span class="n">duration_skew_ratio</span><span class="p">,</span><span class="w"> </span><span class="n">io_read_skew_ratio</span><span class="p">,</span><span class="w"> </span><span class="n">io_write_skew_ratio</span><span class="p">,</span>
+<span class="w">       </span><span class="n">shuffle_read_skew_ratio</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">stage_governance</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">app_id</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="err">$</span><span class="n">app_id</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">timestamp_ms</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">50</span>
+</code></pre></div></p>
+<p><strong>使用建议</strong>: <code>duration_skew_ratio &gt; 2</code> 表示某些 Task 耗时远超均值。<code>io_read_skew_ratio &gt; 2</code> 表示读取数据不均。可考虑 <code>repartition()</code> 或 <code>coalesce()</code> 调整。</p>
+<h4 id="resource-efficiencytable">Resource Efficiency（table）<a class="headerlink" href="#resource-efficiencytable" title="Permanent link">&para;</a></h4>
+<p><strong>用途</strong>: 展示每个 Stage 的 CPU 效率、GC 开销、Shuffle 等待、Spill 比率等资源使用指标。关键指标用渐变色标注。</p>
+<p><strong>SQL 查询</strong>:
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">app_id</span><span class="p">,</span><span class="w"> </span><span class="n">stage_id</span><span class="p">,</span><span class="w"> </span><span class="n">task_count</span><span class="p">,</span><span class="w"> </span><span class="n">cpu_efficiency</span><span class="p">,</span><span class="w"> </span><span class="n">gc_overhead_ratio</span><span class="p">,</span>
+<span class="w">       </span><span class="n">shuffle_wait_ratio</span><span class="p">,</span><span class="w"> </span><span class="n">spill_ratio</span><span class="p">,</span><span class="w"> </span><span class="n">deserialize_overhead</span><span class="p">,</span><span class="w"> </span><span class="n">scheduler_delay_ratio</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">stage_governance</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">app_id</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="err">$</span><span class="n">app_id</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">timestamp_ms</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">50</span>
+</code></pre></div></p>
+<p><strong>关键指标阈值</strong>:
+| 指标 | 黄色 | 红色 |
+|------|------|------|
+| <code>cpu_efficiency</code> | 0.5 | &lt;0.5 |
+| <code>gc_overhead_ratio</code> | 0.05 | &gt;0.1 |
+| <code>shuffle_wait_ratio</code> | 0.05 | &gt;0.1 |
+| <code>spill_ratio</code> | 0.1 | &gt;0.3 |</p>
+<h3 id="y36">直方图与小文件（y=36）<a class="headerlink" href="#y36" title="Permanent link">&para;</a></h3>
+<h4 id="task-duration-histogrambarchart">Task Duration Histogram（barchart）<a class="headerlink" href="#task-duration-histogrambarchart" title="Permanent link">&para;</a></h4>
+<p><strong>用途</strong>: 展示 Task 耗时分布直方图，X 轴为 Bucket 上界（ms），Y 轴为计数。</p>
+<p><strong>SQL 查询</strong>:
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">ROUND</span><span class="p">(</span><span class="n">bucket_le</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s1">&#39;Bucket LE (ms)&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">SUM</span><span class="p">(</span><span class="n">bucket_count</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s1">&#39;Count&#39;</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">task_histogram_buckets</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">metric_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;spark.task.duration_ms&#39;</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">app_id</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="err">$</span><span class="n">app_id</span><span class="p">)</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">bucket_le</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">bucket_le</span>
+</code></pre></div></p>
+<p><strong>使用建议</strong>: 如果大量 Task 集中在低耗时区间但有少量在高区间，说明存在长尾问题。</p>
+<h4 id="small-file-detectiontable">Small File Detection（table）<a class="headerlink" href="#small-file-detectiontable" title="Permanent link">&para;</a></h4>
+<p><strong>用途</strong>: 检测小文件问题。当 <code>avg_output_bytes_per_task &lt; 32MB</code> 时可能存在小文件问题。</p>
+<p><strong>SQL 查询</strong>:
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">app_id</span><span class="p">,</span><span class="w"> </span><span class="n">stage_id</span><span class="p">,</span><span class="w"> </span><span class="n">task_count</span><span class="p">,</span><span class="w"> </span><span class="n">total_bytes_read</span><span class="p">,</span><span class="w"> </span><span class="n">total_bytes_written</span><span class="p">,</span>
+<span class="w">       </span><span class="n">total_shuffle_bytes_read</span><span class="p">,</span><span class="w"> </span><span class="n">total_shuffle_bytes_written</span><span class="p">,</span>
+<span class="w">       </span><span class="n">total_records_read</span><span class="p">,</span><span class="w"> </span><span class="n">total_records_written</span><span class="p">,</span><span class="w"> </span><span class="n">avg_output_bytes_per_task</span><span class="p">,</span>
+<span class="w">       </span><span class="n">avg_output_records_per_task</span><span class="p">,</span><span class="w"> </span><span class="n">small_output_task_count</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">stage_governance</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">app_id</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="err">$</span><span class="n">app_id</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">timestamp_ms</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">50</span>
+</code></pre></div></p>
+<p><strong>使用建议</strong>: <code>small_output_task_count &gt; 0</code> 时考虑减少分区数或合并输出文件。</p>
+<h3 id="task-y44">Task 详情（y=44）<a class="headerlink" href="#task-y44" title="Permanent link">&para;</a></h3>
+<h4 id="task-detailtable">Task Detail（table，全宽）<a class="headerlink" href="#task-detailtable" title="Permanent link">&para;</a></h4>
+<p><strong>用途</strong>: 展示最近 200 条 Task 的完整指标详情，包括 IO、耗时、CPU、GC、Spill 等。</p>
+<p><strong>SQL 查询</strong>:
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">FROM_UNIXTIME</span><span class="p">(</span><span class="n">timestamp_ms</span><span class="o">/</span><span class="mi">1000</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">time</span><span class="p">,</span><span class="w"> </span><span class="n">app_id</span><span class="p">,</span><span class="w"> </span><span class="n">executor_id</span><span class="p">,</span><span class="w"> </span><span class="n">stage_id</span><span class="p">,</span>
+<span class="w">       </span><span class="n">task_id</span><span class="p">,</span><span class="w"> </span><span class="n">task_success</span><span class="p">,</span><span class="w"> </span><span class="n">duration_ms</span><span class="p">,</span><span class="w"> </span><span class="n">io_bytes_read</span><span class="p">,</span><span class="w"> </span><span class="n">io_bytes_written</span><span class="p">,</span>
+<span class="w">       </span><span class="n">shuffle_bytes_read</span><span class="p">,</span><span class="w"> </span><span class="n">shuffle_bytes_written</span><span class="p">,</span><span class="w"> </span><span class="n">shuffle_fetch_wait_time_ms</span><span class="p">,</span>
+<span class="w">       </span><span class="n">executor_run_time_ms</span><span class="p">,</span><span class="w"> </span><span class="n">executor_cpu_time_ns</span><span class="p">,</span><span class="w"> </span><span class="n">jvm_gc_time_ms</span><span class="p">,</span>
+<span class="w">       </span><span class="n">disk_bytes_spilled</span><span class="p">,</span><span class="w"> </span><span class="n">memory_bytes_spilled</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">task_metrics</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">app_id</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="err">$</span><span class="n">app_id</span><span class="p">)</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">duration_ms</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">timestamp_ms</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">200</span>
+</code></pre></div></p>
+<p><strong>列说明</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>列名</th>
+<th>含义</th>
+<th>单位</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>task_success</code></td>
+<td>OK（绿色）/ FAIL（红色）</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>executor_cpu_time_ns</code></td>
+<td>Executor CPU 时间</td>
+<td>ns</td>
+</tr>
+<tr>
+<td><code>jvm_gc_time_ms</code></td>
+<td>JVM GC 耗时</td>
+<td>ms</td>
+</tr>
+<tr>
+<td><code>disk_bytes_spilled</code></td>
+<td>磁盘溢写</td>
+<td>bytes</td>
+</tr>
+<tr>
+<td><code>memory_bytes_spilled</code></td>
+<td>内存溢写</td>
+<td>bytes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sql-y52-72">SQL 查询分析（y=52-72）<a class="headerlink" href="#sql-y52-72" title="Permanent link">&para;</a></h3>
+<h4 id="sql-queries-avg-sql-query-duration-total-sql-joins-sql-table-scanswrites4-stat">SQL Queries / Avg SQL Query Duration / Total SQL Joins / SQL Table Scans/Writes（4 个 stat）<a class="headerlink" href="#sql-queries-avg-sql-query-duration-total-sql-joins-sql-table-scanswrites4-stat" title="Permanent link">&para;</a></h4>
+<p><strong>用途</strong>: SQL 查询概览统计，分别展示查询数、平均耗时、总 Join 数、表扫描/写入数。</p>
+<h4 id="sql-query-durationtimeseries">SQL Query Duration（timeseries）<a class="headerlink" href="#sql-query-durationtimeseries" title="Permanent link">&para;</a></h4>
+<p><strong>用途</strong>: SQL 查询的平均和最大耗时趋势。</p>
+<h4 id="sql-shuffle-bytestimeseries">SQL Shuffle Bytes（timeseries）<a class="headerlink" href="#sql-shuffle-bytestimeseries" title="Permanent link">&para;</a></h4>
+<p><strong>用途</strong>: SQL 查询的 Shuffle 读写数据量趋势。</p>
+<h4 id="sql-table-io-detailtable">SQL Table IO Detail（table，全宽）<a class="headerlink" href="#sql-table-io-detailtable" title="Permanent link">&para;</a></h4>
+<p><strong>用途</strong>: 展示每个 SQL 查询的表 IO 详情（表名、操作类型、字节数、行数、文件数）。</p>
+<p><strong>SQL 查询</strong>:
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">FROM_UNIXTIME</span><span class="p">(</span><span class="n">timestamp_ms</span><span class="o">/</span><span class="mi">1000</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">time</span><span class="p">,</span><span class="w"> </span><span class="n">app_id</span><span class="p">,</span><span class="w"> </span><span class="n">execution_id</span><span class="p">,</span>
+<span class="w">       </span><span class="k">table_name</span><span class="p">,</span><span class="w"> </span><span class="k">operation</span><span class="p">,</span><span class="w"> </span><span class="n">bytes</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="k">rows</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="n">files_read</span><span class="p">,</span><span class="w"> </span><span class="n">time_ms</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">sql_query_table_metrics</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">app_id</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="err">$</span><span class="n">app_id</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">timestamp_ms</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">200</span>
+</code></pre></div></p>
+<h4 id="sql-query-detailtable">SQL Query Detail（table，全宽）<a class="headerlink" href="#sql-query-detailtable" title="Permanent link">&para;</a></h4>
+<p><strong>用途</strong>: 展示查询级别指标：耗时、Shuffle、Join 数。</p>
+<p><strong>SQL 查询</strong>:
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">FROM_UNIXTIME</span><span class="p">(</span><span class="n">timestamp_ms</span><span class="o">/</span><span class="mi">1000</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">time</span><span class="p">,</span><span class="w"> </span><span class="n">app_id</span><span class="p">,</span><span class="w"> </span><span class="n">execution_id</span><span class="p">,</span>
+<span class="w">       </span><span class="n">duration_ms</span><span class="p">,</span><span class="w"> </span><span class="n">shuffle_bytes_read</span><span class="p">,</span><span class="w"> </span><span class="n">shuffle_bytes_written</span><span class="p">,</span><span class="w"> </span><span class="n">join_count</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">sql_query_metrics</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">app_id</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="err">$</span><span class="n">app_id</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">timestamp_ms</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">100</span>
+</code></pre></div></p>
+<h2 id="_4">导航<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<p>顶部导航栏可快速切换到：
+- <strong>Overview</strong> — 平台总览
+- <strong>MapReduce</strong> — MR 引擎详细透视
+- <strong>Hive on MR</strong> / <strong>Hive on Spark</strong> — Hive 查询分析
+- <strong>Spark / MR / Hive</strong> — 全引擎综合仪表盘</p>
+<h2 id="_5">注意事项<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>$app_id</code> 变量从 <code>task_metrics</code> 表获取，仅包含有 Task 事件的应用</li>
+<li><code>stage_governance</code> 和 <code>task_histogram_buckets</code> 的数据依赖 Stage 完成，短生命周期应用可能无数据</li>
+<li>JVM 面板数据来自 Executor Plugin，需确保 <code>spark.telemetry.metrics.stage.detailed=true</code> 配置</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.suggest"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
